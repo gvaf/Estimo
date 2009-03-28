@@ -1,0 +1,71 @@
+SharpEye/Estimo C compiler - Changes in new versions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Legend:
+ [+] - added feature
+ [*] - bug fixed, modified or improved feature
+ [-] - removed feature
+
+
+Version 2.9.3
+~~~~~~~~~~~~~~
+ - Removed the "not equal instruction (cmpne)
+ * Fixed compare instructions and the jump instruction in order to be compatible with the
+   hardware implementation. it works with #if, #while, #do-#while 
+
+Version 2.9.2
+~~~~~~~~~~~~~~
+ + SharpInfo tool  reads the opcodes from the configuration file
+ + Added new command mode(mvc, ref, partition), mode(1, 5, 8x16)
+   which means execute the first instruction in the program with ref 5 and partition 8?16
+   for each    motion vector candidate. Then execute the rest of the program with the winner.
+   We updated the configuration.ini with new opcodes
+
+Version 2.9.0
+~~~~~~~~~~~~~~
+ 
+ + reactivated the compare instructions
+   #if( SAD == 10 ) {}
+   #if( SAD > 20)  {}
+   #if( SAD < 20)  {}
+   #if( SAD >= 20)  {}
+   #if( SAD <= 20)  {}
+   #while( SAD > 10) {}
+   #do {} #while(SAD > 10)
+
+Version 2.8.0
+~~~~~~~~~~~~~~
+ 
+ * The new version fixed some bugs
+ - Deactivated the compare instructions
+ + Added Math functions log
+
+Version 2.5.0
+~~~~~~~~~~~~~~
+ 
+ + New Syntax for checking the winning point
+ + Alternative syntax for checking the WINID #if(WINID == 1 ) {  }
+ + New statement #break, exits a loop (running on embedded level)
+ + Brand new Optimizer (modifies assembly, removing useless instructions)
+ * Bug Fix for optimizer on patterns
+ + New utillity “sharpinfo.exe” decompiles binary memory and program
+ + New SharpEye analytics dialog showing the compiler’s result.
+
+
+Version 2.0.0
+~~~~~~~~~~~~~~
+
+ + New Assembly Optimizer
+ + New Estimo C statement “check(1,0) -> { winning-block} ” execute a block of code based
+   on  pattern check.
+ + Redundancy Check for the sub patterns, avoid to check points that it is absolutely
+   certain that have been checked. [this operation is performed at Compile Time]
+ + New reference manual at the download section
+ + The compiler uses a configuration file where facilitates modification to the hardware
+   prototype
+
+
+Version 1.0.0 
+~~~~~~~~~~~~~~
+ + first public release.
+
