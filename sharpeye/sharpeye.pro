@@ -18,7 +18,11 @@ HEADERS += estimohighlight.h \
            patternview.h \
            printpreview.h \
            timedelay.h \
-           settings.h
+           settings.h \
+           cycletimer.h \
+           cycletimerpoint.h \
+           cycletimergraph.h \
+           cycletimertable.h
 
 SOURCES += estimohighlight.cpp \
            main.cpp \
@@ -29,7 +33,11 @@ SOURCES += estimohighlight.cpp \
            patternview.cpp \
            printpreview.cpp \
            timedelay.cpp \
-           settings.cpp
+           settings.cpp \
+           cycletimer.cpp \
+           cycletimerpoint.cpp \
+           cycletimergraph.cpp \
+           cycletimertable.cpp
 
 RESOURCES += sharpeye.qrc
 

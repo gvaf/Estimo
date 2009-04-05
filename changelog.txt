@@ -6,10 +6,18 @@ Legend:
  [*] - bug fixed, modified or improved feature
  [-] - removed feature
 
+Version 3.0.0
+~~~~~~~~~~~~~~
+
+ + Ported x264 codec to Visual Studio 2008 (minor changes)
+ + Merged Cycle Accurate Model Simulator with main truck
+ * Fixed bug: showing invalid number of points in "chk, chkfr" comments
+   output of sharpinfo decompiler
+ 
 
 Version 2.9.3
 ~~~~~~~~~~~~~~
- - Removed the "not equal instruction (cmpne)
+ - Removed the "not equal instruction (cmpne)"
  * Fixed compare instructions and the jump instruction in order to be compatible with the
    hardware implementation. it works with #if, #while, #do-#while 
 

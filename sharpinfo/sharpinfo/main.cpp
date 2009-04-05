@@ -243,27 +243,27 @@ void getInfo(string line)
 
  if( opcode == chk_opcode )
  {
-   cout << "chk      " << "NumPoints: " << convertToInt(arg1) << "\tstartAddr: " << convertToInt(arg2) << endl;
+   cout << "chk      " << "NumPoints: " << convertToInt("0" + arg1) << "\tstartAddr: " << convertToInt("0" + arg2) << endl;
  }
 
  if( opcode == chkfr_opcode )
  {
-   cout << "chkfr    " <<  "NumPoints: " << convertToInt(arg1) << "\tstartAddr: " << convertToInt(arg2) << endl;
+   cout << "chkfr    " <<  "NumPoints: " << convertToInt("0" + arg1) << "\tstartAddr: " << convertToInt("0" + arg2) << endl;
  }
 
  if( opcode == chkjmp_opcode )
  {
-   cout << "chkjmp   " << "WIN: " << convertToInt(arg1)        << "\t\tgoto: " << convertToInt(arg2) << endl;
+   cout << "chkjmp   " << "WIN: " << convertToInt("0" + arg1)        << "\t\tgoto: " << convertToInt("0" + arg2) << endl;
  }
 
  if( opcode == b_opcode )
  {
-   cout << "b        " << "goto: " << convertToInt(arg12) << endl;
+   cout << "b        " << "goto: " << convertToInt("0" + arg12) << endl;
  }
 
  if( opcode == jmp_opcode )
  {
-   cout << "jmp      " << "goto: " << convertToInt(arg12) << endl;
+   cout << "jmp      " << "goto: " << convertToInt("0" + arg12) << endl;
  }
 
  // [Instruction: Compare if reg Less than number]  cmpl <register>, <number>

@@ -29,6 +29,7 @@
 #include "patternview.h"
 #include "settings.h"
 #include "timedelay.h"
+#include "cycletimer.h"
 
 #ifdef Q_WS_WIN
    #define ASSISTANT_PATH "assistant.exe"
@@ -43,7 +44,7 @@ SharpEye::SharpEye()
   sourcetab->setMinimumSize(400, 205);
   //setWindowTitle(tr("%1[*] - %2").arg("test.est").arg(tr("SharpEye Studio")));
 
-  setWindowTitle(tr("SharpEye Studio 2008 - A Complete Framework for the Development of Motion Estimation Processors and Algorithms"));
+  setWindowTitle(tr("SharpEye Studio 2009 - A Complete Framework for the Development of Motion Estimation Processors and Algorithms"));
 
   createActions();
   createMenus();
@@ -54,6 +55,7 @@ SharpEye::SharpEye()
   showMaximized();
   initializeAssistant();
   estimo = new QProcess(this);
+  cycleTimer = 0;
   connect(estimo, SIGNAL(finished(int, QProcess::ExitStatus) ), this, SLOT(compilerFinished()));
 }
 
@@ -185,6 +187,9 @@ void SharpEye::createActions()
   buildAct->setShortcut(tr("F5"));
   connect(buildAct, SIGNAL(triggered()), this, SLOT(run())); 
 
+  showCyclesAct = new QAction(QIcon(":/SharpEye/images/gear_time.png"), tr("Cycle-accurate model"), this);
+  connect(showCyclesAct, SIGNAL(triggered()), this, SLOT(showCycles()));
+
   newProjectAct = new QAction(QIcon(":/SharpEye/images/document_plain_new.png"), 
                                                                     tr("New Project"), this);
 
@@ -254,10 +259,11 @@ void SharpEye::createActions()
 /// Show About Dialog
 void SharpEye::aboutSharpEye()
 {
-  QMessageBox::about(this, tr("SharpEye Studio 2008"), 
-  tr("<b>University of Bristol</b><p>Copyright (C) 2008 by George " \
-     "Vafiadis<p>A complete Integrated Environment for the Development of " \
-     "Motion Estimation Algorithms."));
+  QMessageBox::about(this, tr("SharpEye Studio 2009"), 
+  tr("<b>University of Bristol</b><p>Copyright (C) 2009 by George Vafiadis" \
+	 "<p>Copyright (C) 2009 by Trevor Spiteri " \
+     "<p>Copyright (C) 2009 by Jose Luis Nunez-Yanez " \
+	 "<p>A complete Integrated Environment for the Development of Motion Estimation Algorithms."));
 }
 
 /// Create Menu Bar
@@ -308,7 +314,9 @@ void SharpEye::createMenus()
   buildMenu->addAction(cancelRun);
   buildMenu->addSeparator();
   buildMenu->addAction(cleanProject);
-  
+  buildMenu->addSeparator();
+  buildMenu->addAction(showCyclesAct);
+
 /*
   settingsMenu = menuBar()->addMenu(tr("&Settings")); 
   settingsMenu->addAction(settingsAct);
@@ -350,6 +358,8 @@ void SharpEye::createToolBars()
  buildToolBar->addAction(buildAct);
  buildToolBar->addSeparator(); 
  buildToolBar->addAction(cancelRun);
+ buildToolBar->addSeparator();
+ buildToolBar->addAction(showCyclesAct);
  //buildToolBar->addAction(debugAct);
  //buildToolBar->addAction(loadChipAct);
  //buildToolBar->addAction(settingsAct);
@@ -429,6 +439,15 @@ void SharpEye::run()
 	 status->setText(output);
 
      estimo->start(program, arguments);
+}
+
+/// Time cycles using cycle accurate model
+void SharpEye::showCycles()
+{
+	if (!cycleTimer)
+		cycleTimer = new CycleTimer();
+	cycleTimer->show();
+	cycleTimer->activateWindow();
 }
 
 /// Compiler has Finished

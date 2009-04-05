@@ -32,6 +32,11 @@ class SourceBrowser;
 class QTreeWidget;
 class ProjectTree;
 
+namespace CT {
+class CycleTimer;
+}
+using CT::CycleTimer;
+
 class SharpEye : public QMainWindow
 {
   Q_OBJECT
@@ -48,6 +53,7 @@ class SharpEye : public QMainWindow
    
     void patternEditor();
     void run();
+    void showCycles();
     void hideExplorer();
     void hideMessages();
     void clipboardDataChanged();
@@ -80,6 +86,7 @@ class SharpEye : public QMainWindow
      QDockWidget   *dockExplorer;
      QAssistantClient *assistantClient;
      QProcess *estimo;
+     CycleTimer *cycleTimer;
 
      QMenu *fileMenu;
      QMenu *editMenu;
@@ -120,6 +127,7 @@ class SharpEye : public QMainWindow
      QAction *replaceAct;
 
      QAction *buildAct;
+     QAction *showCyclesAct;
 
      QAction *newProjectAct;
      QAction *openProjectAct;
