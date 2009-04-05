@@ -10,7 +10,7 @@ Version 3.0.0
 ~~~~~~~~~~~~~~
 
  + Ported x264 codec to Visual Studio 2008 (minor changes)
- + Merged Cycle Accurate Model Simulator with main truck
+ + Merged Cycle Accurate Model Simulator with main trunk
  * Fixed bug: showing invalid number of points in "chk, chkfr" comments
    output of sharpinfo decompiler
  
