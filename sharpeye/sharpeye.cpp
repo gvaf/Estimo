@@ -137,6 +137,7 @@ void SharpEye::createActions()
   exitAct = new QAction(QIcon(":/SharpEye/images/exit.png"), tr("&Exit"), this);
   exitAct->setShortcut(tr("Ctrl+Q"));
   exitAct->setStatusTip(tr("Exit SharpEye Studio"));
+  connect(exitAct, SIGNAL(triggered()), this, SLOT(quitIDE()) );
 
   // Edit Menu Actions
   undoAct  = new QAction(QIcon(":/SharpEye/images/undo.png"), tr("Undo"), this);
@@ -254,6 +255,11 @@ void SharpEye::createActions()
 
   connect(sourcetab, SIGNAL(redoAvailable(bool)),
             redoAct, SLOT(setEnabled(bool)));
+}
+
+void SharpEye::quitIDE()
+{
+	qApp->exit(0);
 }
 
 /// Show About Dialog
@@ -528,14 +534,19 @@ void SharpEye::clipboardDataChanged()
 /// Open Project's Web site
 void SharpEye::website()
 {
- QDesktopServices::openUrl(QUrl("http://www.bristol.co.uk"));
+ QDesktopServices::openUrl(QUrl("http://sharpeye.borelspace.com"));
 }
 
 /// Call Assistant to show help
 void SharpEye::assistant()
 {
-  assistantClient->showPage(QApplication::applicationDirPath() 
-   +  QDir::separator() + "manual" +  QDir::separator() + "index.html");
+  /*assistantClient->showPage(QApplication::applicationDirPath() 
+   + QDir::separator() + "manual" +  QDir::separator() + "index.html");*/
+
+ QProcess process;
+ QStringList arguments;
+ arguments << "tutorial.pdf";
+ process.startDetached(QApplication::applicationDirPath() + QDir::separator() + "SumatraPDF.exe", arguments);
 }
 
 /// Initialize Assistant 

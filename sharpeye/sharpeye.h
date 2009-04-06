@@ -66,6 +66,7 @@ class SharpEye : public QMainWindow
     void clean();
     void compilerFinished();
     void killEstimo();
+	void quitIDE();
 
  private:
     void createActions();

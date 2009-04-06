@@ -6,6 +6,11 @@ Legend:
  [*] - bug fixed, modified or improved feature
  [-] - removed feature
 
+Version 3.0.2
+~~~~~~~~~~~~~~
+  * when you press the help button (F1) shows the tutorial.pdf
+  * Fixed bug: when you click the exit button quits application
+
 Version 3.0.0
 ~~~~~~~~~~~~~~
 
