@@ -135,7 +135,7 @@ cas_new(const uint32_t *prog_mem, const uint16_t *point_mem, int feu, int foptl,
     cas->last_qcycles = 0;
 
     cas->cycles = cas->fcycles = cas->qcycles = cas->could_save_cycles = 0;
-    cas->energy_pJ = 0.0;
+    cas->energy_pJ = 0;
 
     return cas;
 }
