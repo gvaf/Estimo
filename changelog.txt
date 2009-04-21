@@ -6,6 +6,12 @@ Legend:
  [*] - bug fixed, modified or improved feature
  [-] - removed feature
 
+
+Version 3.0.3
+~~~~~~~~~~~~~~
+  * Negative energy values due to improper initialization (Visual Studio 2008 port)
+  
+
 Version 3.0.2
 ~~~~~~~~~~~~~~
   * when you press the help button (F1) shows the tutorial.pdf
