@@ -4,7 +4,7 @@
    SharpEye Studio Project
    Copyright (C) George Vafiadis
    email: vafiadis@ieee.org
-   web: http://gr.metamath.org/sharpeye
+   web: http://sharpeye.borelspace.com
    Under GPL v2 License.
 */
  #include <stdio.h>
@@ -42,7 +42,7 @@
 };
 
 %token<str> T_ID T_STRING
-%token<n>   T_NUM T_SET T_SAD T_MX T_MY T_ARROW T_WINID T_CASE T_SEMICOL 
+%token<n>   T_NUM T_SET T_SAD T_MX T_MY T_ARROW T_WINID T_CASE T_SEMICOL T_COST T_LENGTH
 %token<n>   T_FUN_LOG2 T_FUN_LN T_FUN_LOG10 T_FUN_POW T_FUN_SQRT T_FUN_FABS T_FUN_PRINT
 %token<n>   T_IFS T_ELSES T_DOS T_WHILES
 %token<n>   T_IF  T_ELSE T_WHILE T_DO T_FOR T_FORTO T_FORSTEP
@@ -213,7 +213,7 @@ asmcommand :
         ;
 
 asmcond : 
-                asmvar asmopr constnum   {$$ = new AsmCondition($1, $2, $3);}
+                asmvar asmopr constnum   {$$ = new AsmCondition($1, $2, $3); }
             |   constnum asmopr asmvar  {float inv = $2; 
                                                 if($2 == T_GT) inv = T_LT;
                                                 if($2 == T_GE) inv = T_LE;
@@ -224,8 +224,10 @@ asmcond :
            ;
 
 asmvar :
-             T_SAD   {$$ = T_SAD;}
-          |  T_WINID {$$ = T_WINID;}
+             T_SAD    {$$ = T_COST; std::cout << "Warning: 'SAD' keyword is deprecated use 'COST' or 'LENGTH' instead." << std::endl; }
+          |  T_COST   {$$ = T_COST; }
+          |  T_LENGTH {$$ = T_LENGTH; }             
+          |  T_WINID  {$$ = T_WINID;}
           ;
 
 asmopr : 

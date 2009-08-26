@@ -4,7 +4,7 @@
    SharpEye Studio Project
    Copyright (C) George Vafiadis
    email: vafiadis@ieee.org
-   web: http://gr.metamath.org/sharpeye
+   web: http://sharpeye.borelspace.com
    Under GPL v2 License.
 */
 
@@ -52,6 +52,8 @@ int lines = 0;
 "check"     {return T_CHECK;}
 "Pattern"   {return T_PATTERN;}
 "SAD"       {return T_SAD;}
+"COST"      {return T_COST;}
+"LENGTH"    {return T_LENGTH;}
 "WINID"     {return T_WINID;}
 "#if"       {return T_IFS;}
 "#else"     {return T_ELSES;}

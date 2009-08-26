@@ -63,7 +63,10 @@ Settings::Settings(QString conFile)
   max_height = QString( ini.GetValue("Reference Frame", "max-height", NULL )).toInt();
 
   // [Registers]
-  SAD = QString( ini.GetValue("Registers", "SAD", NULL ));
+  SAD  = QString( ini.GetValue("Registers", "SAD", NULL ));
+  COST   = QString( ini.GetValue("Registers", "COST", NULL ));
+  LENGTH = QString( ini.GetValue("Registers", "LENGTH", NULL ));
+
   Mx  = QString( ini.GetValue("Registers", "Mx", NULL ));
   My  = QString( ini.GetValue("Registers", "My", NULL ));
 

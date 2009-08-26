@@ -389,7 +389,8 @@ float AsmCondition::eval(EvalParam *param) const
     CmpCmd::OPERATOR op;
     float other = num; 
 
-    if( reg == T_SAD ) r = CmpCmd::SAD;
+	if( reg == T_COST )   r = CmpCmd::COST;
+	if( reg == T_LENGTH ) r = CmpCmd::LENGTH;
 
 	// sad < 10  -not-> sad >= 10 -> sad > 9
 	if( oper == T_LT ) { op = CmpCmd::GREATER; --other; }
@@ -649,9 +650,8 @@ float AsmCmp::eval(EvalParam *param) const
    CmpCmd::REGISTER r;
    CmpCmd::OPERATOR op;
 
-   if( reg == T_SAD ) r = CmpCmd::SAD;
-   if( reg == T_MX )  r = CmpCmd::MX;
-   if( reg == T_MY )  r = CmpCmd::MY;
+   if( reg == T_LENGTH ) r = CmpCmd::LENGTH;
+   if( reg == T_COST ) r = CmpCmd::COST;
 
    if( type == T_GE ) op = CmpCmd::GREATER;
    if( type == T_LE ) op = CmpCmd::LESS;

@@ -31,11 +31,15 @@ using namespace std;
 #include "binaryword.h"
 #include "settings.h"
 
+#define VERSION "Estimo C Compiler v4.0"
+
 int main(int argc, char **argv)
 {
   QApplication app(argc, argv);
 
   QString conFile = QApplication::applicationDirPath() + "/configuration.ini";
+
+  cout << VERSION << endl;
 
   QFileInfo info(conFile);
 
@@ -49,7 +53,7 @@ int main(int argc, char **argv)
   cout << "Reading 'configuration.ini'..." << endl;
 
   const Settings & settings = getSettings();
-  cout << "Using configuration version " << settings.version.toStdString() << endl;
+  cout << "Using configuration version " << settings.version.toStdString() << endl << endl;
   
   EstimoBash bash;
 

@@ -51,6 +51,8 @@ class Settings
 
   // Registers
   QString SAD;
+  QString COST;
+  QString LENGTH;
   QString Mx;
   QString My;
 

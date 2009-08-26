@@ -7,15 +7,24 @@ Legend:
  [-] - removed feature
 
 
+
+Version 3.1.0
+~~~~~~~~~~~~~~
+ + Added two new registers COST and LENGTH
+ + Added new example using COST and LENTH pvmfasts.est
+ + Converted all examples using COST instead of SAD
+ - SAD register deprecated use COST instead, if used the compiler issues a warning message
+ * Fixed bug in sharpinfo decompiler showning negative numbers (for big numbers) in compare instructions
+
 Version 3.0.3
 ~~~~~~~~~~~~~~
-  * Negative energy values due to improper initialization (Visual Studio 2008 port)
+ * Negative energy values due to improper initialization (Visual Studio 2008 port)
   
 
 Version 3.0.2
 ~~~~~~~~~~~~~~
-  * when you press the help button (F1) shows the tutorial.pdf
-  * Fixed bug: when you click the exit button quits application
+ * when you press the help button (F1) shows the tutorial.pdf
+ * Fixed bug: when you click the exit button quits application
 
 Version 3.0.0
 ~~~~~~~~~~~~~~

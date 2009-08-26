@@ -69,9 +69,12 @@ int min_height;
 int max_height;
 
 // Registers
-std::string SAD;
-std::string Mx;
-std::string My;
+std::string COST;
+std::string LENGTH;
+
+std::string SAD; // deprecated
+std::string Mx;  // deprecated
+std::string My; // deprecated
 
 // chk <start_pattern_address>,  <number_of_points>
 std::string chk_opcode;
@@ -227,6 +230,13 @@ void parseArg(char ** argv)
   }
 }
 
+std::string getRegisterName(std::string bits)
+{
+  if( bits == "0000" ) return "cost    ";
+  if( bits == "0001" ) return "length  ";
+}
+
+
 void getInfo(string line)
 {
  string opcode = line.substr(0, 4);   // 4 bits
@@ -234,6 +244,7 @@ void getInfo(string line)
  string arg2   = line.substr(12, 8);  // 8 bits
  string arg12  = line.substr(4, 16);  // 16 bits
  string arg2_12bits = line.substr(8, 12); // 12 bits
+ string regName = line.substr(4, 4);   // 4 bits
 
  if( opcode == halt_opcode && arg12 == "0000000000000000" )
  {
@@ -269,27 +280,27 @@ void getInfo(string line)
  // [Instruction: Compare if reg Less than number]  cmpl <register>, <number>
 if( opcode == cmpl_opcode )
  {
-   cout << "cmpl     " << "sad   " << convertToInt(arg2_12bits) << endl;
+   cout << "cmpl     " << getRegisterName(regName) << convertToInt("0" + arg2_12bits) << endl;
  }
 
 
 //[Instruction: Compare if reg greater than number] ; cmpg <register>, <number>
 if( opcode == cmpg_opcode )
  {
-   cout << "cmpg     " << "sad   " << convertToInt(arg2_12bits) << endl;
+   cout << "cmpg     " << getRegisterName(regName) << convertToInt("0" + arg2_12bits) << endl;
  }
 
 // [Instruction: Compare if reg is equal to number]  ; cmpe <register>, <number>
 if( opcode == cmpe_opcode )
  {
-   cout << "cmpe     " << "sad   " << convertToInt(arg2_12bits) << endl;
+   cout << "cmpe     " << getRegisterName(regName) << convertToInt("0" + arg2_12bits) << endl;
  }
 
 
 //[Instruction: Compare if reg is not equal to number] ; cmpne <register>, <number>
 if( opcode == cmpne_opcode )
  {
-   cout << "cmpne     " << "sad   " << convertToInt(arg2_12bits) << endl;
+   cout << "cmpne     " << getRegisterName(regName) << convertToInt("0" + arg2_12bits) << endl;
  }
 
 
@@ -357,7 +368,7 @@ int convertToInt(std::string num)
 
   if( !isneg )
   {
-      for(int i = 0; i < num.size(); ++i)
+      for(int i = 0; i < (int)num.size(); ++i)
       {
         int digit = (num[i] == '1' ? 1 : 0);
 
@@ -366,7 +377,7 @@ int convertToInt(std::string num)
   }
   else // complement 2
   {
-      for(int i = 0; i < num.size(); ++i)
+      for(int i = 0; i < (int)num.size(); ++i)
       {
         int digit = (num[i] == '1' ? 0 : 1);
 
@@ -388,7 +399,7 @@ float convertToFloat(std::string num)
   if( isneg ) // complement 2
   {
       /// invert
-      for(int i = 0; i < num.size(); ++i)
+      for(int i = 0; i < (int)num.size(); ++i)
       {
          num[i] = (num[i] == '1' ? '0' : '1');
       }
@@ -493,9 +504,12 @@ void loadIni(std::string filename)
 	max_height = str2int( std::string( ini.GetValue("Reference Frame", "max-height", empty )));
 
 	// [Registers]
-	SAD = std::string( ini.GetValue("Registers", "SAD", empty ));
-	Mx  = std::string( ini.GetValue("Registers", "Mx", empty ));
-	My  = std::string( ini.GetValue("Registers", "My", empty ));
+	COST = std::string( ini.GetValue("Registers", "COST", empty ));
+	LENGTH = std::string( ini.GetValue("Registers", "LENGTH", empty ));
+
+	SAD = std::string( ini.GetValue("Registers", "SAD", empty ));  // deprecated!
+	Mx  = std::string( ini.GetValue("Registers", "Mx", empty ));   // deprecated!
+	My  = std::string( ini.GetValue("Registers", "My", empty ));   // deprecated!
 
 	// chk <start_pattern_address>,<number_of_pos>
 	chk_opcode = std::string( ini.GetValue("Instruction: Check full-pel Pattern", "opcode", empty ));
@@ -512,7 +526,6 @@ void loadIni(std::string filename)
 
 	chkjmp_win= str2int( std::string( ini.GetValue("Instruction: Check and Jump", "winning-point-bits", empty )));
 	chkjmp_address= str2int( std::string( ini.GetValue("Instruction: Check and Jump", "afterwin-program-address-bits", empty )));
-
 
 	// cmpl <register>, <number>
 	cmpl_opcode= std::string( ini.GetValue("Instruction: Compare if reg Less than number", "opcode", empty ));

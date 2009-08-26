@@ -1,11 +1,14 @@
 How to Compile in Windows
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Install Qt 4.x
-Change directory to estimo
-run qmake -t vcapp
-Open estimo.vcproj
+Install: Qt 4.x
+Change: directory to estimo
+run: qmake -t vcapp
+Open: estimo.vcproj
 
+
+If for some reason visual studio issues an error while Yaccing... Open estimo.vcproj
+and change y.tab.c y.tab.h to estimo.tab.c estimo.tab.h
 
 
 Manually Calling bison/flex
