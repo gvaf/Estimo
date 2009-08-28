@@ -1,0 +1,35 @@
+/// Example 15: Dr Jose sample code
+
+iter = 4;
+
+Pattern(hexagon)
+{
+ check(1,2)
+ check(2,0)
+ check(1,-2)
+ check(-1,-2)
+ check(-2,0)
+ check(-1,2)
+} 
+ 
+check(0,0);
+update; 
+
+for(loop = 1 to iter step 1)
+{
+  check(hexagon);
+
+  #if( WINID == 0 )
+     #break;
+}
+
+// Fractional refinement
+check(0.5,0);
+check(-0.5,0);
+check(1.5,0);
+check(0,0.5);
+check(0,-0.5);
+check(0.25,0);
+update;
+
+// finish

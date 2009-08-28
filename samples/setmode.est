@@ -1,0 +1,29 @@
+/// Copyright (C) 2009
+/// Source D:/sharpeye/tests/samples/setmode.est
+
+
+Pattern(diamond)
+{
+ check(0,1)
+ check(0,-1)
+ check(1,0)
+ check(-1,0)
+}
+
+Pattern(hexbs)
+{
+  check(2,0)
+  check(-2,0)
+  check(1,2)
+  check(-1,2)
+  check(1,-2)
+  check(-1,-2)
+}
+
+// set mode: execute 1 instruction with ref 5 and partition 8x16 for each MVC 
+mode( 1, 5, 8x16 );
+
+check(hexbs);
+check(diamond);
+check(diamond);
+

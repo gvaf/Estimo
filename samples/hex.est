@@ -1,0 +1,59 @@
+/// Copyright (C) Jose Nunez-Yanez
+/// Source D:/projects/me_interpolation_16m/estimo_sources/hex.est
+
+
+fpi = 8;
+
+Pattern(square)
+{
+  check(0,1)
+  check(0,-1)
+  check(1,0)
+  check(-1,0)
+  check(-1,-1)
+  check(-1,1)
+  check(1,-1)
+  check(1,1)
+}
+
+Pattern(hexbs)
+{
+  check(2,0)
+  check(-2,0)
+  check(1,2)
+  check(-1,2)
+  check(1,-2)
+  check(-1,-2)
+}
+
+Pattern(diamondhp)
+{
+ check(0,0.5)
+ check(0,-0.5)
+ check(0.5,0)
+ check(-0.5,0)
+}
+Pattern(diamondqp)
+{
+ check(0,0.25)
+ check(0,-0.25)
+ check(0.25,0)
+ check(-0.25,0)
+}
+
+check(0,0);
+update;
+
+//hexagon search
+for(loop = 1 to fpi step 1)
+{
+  check(hexbs);
+  #if( WINID == 0 )
+     #break;
+}
+
+//square refinement
+check(square);
+
+
+

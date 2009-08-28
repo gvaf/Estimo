@@ -1,0 +1,27 @@
+/// Example 4: Test Case 'if/else' statement
+
+
+for(i = 0 to 4 step 1)
+{
+  if( i <= 2 )
+  {
+    check( 2*i, 2*i);
+  }
+  else
+  {
+    check(2*i+1, 2*i+1);
+  }
+}
+update;
+
+
+b = 2;
+a = (10 + b) / 2;
+
+if( a >= 2 && a <= 8 )
+{
+ check(a, a-1);
+ check(a+2, a-2);
+ update;
+}
+

@@ -232,8 +232,8 @@ void parseArg(char ** argv)
 
 std::string getRegisterName(std::string bits)
 {
-  if( bits == "0000" ) return "cost    ";
-  if( bits == "0001" ) return "length  ";
+  if( bits == COST ) return "cost    ";
+  if( bits == LENGTH ) return "length  ";
 }
 
 
@@ -244,7 +244,8 @@ void getInfo(string line)
  string arg2   = line.substr(12, 8);  // 8 bits
  string arg12  = line.substr(4, 16);  // 16 bits
  string arg2_12bits = line.substr(8, 12); // 12 bits
- string regName = line.substr(4, 4);   // 4 bits
+ string arg2_14bits = line.substr(6, 14); // 14 bits
+ string regName = line.substr(4, 2);   // 2 bits
 
  if( opcode == halt_opcode && arg12 == "0000000000000000" )
  {
@@ -280,27 +281,26 @@ void getInfo(string line)
  // [Instruction: Compare if reg Less than number]  cmpl <register>, <number>
 if( opcode == cmpl_opcode )
  {
-   cout << "cmpl     " << getRegisterName(regName) << convertToInt("0" + arg2_12bits) << endl;
+   cout << "cmpl     " << getRegisterName(regName) << convertToInt("0" + arg2_14bits) << endl;
  }
-
 
 //[Instruction: Compare if reg greater than number] ; cmpg <register>, <number>
 if( opcode == cmpg_opcode )
  {
-   cout << "cmpg     " << getRegisterName(regName) << convertToInt("0" + arg2_12bits) << endl;
+   cout << "cmpg     " << getRegisterName(regName) << convertToInt("0" + arg2_14bits) << endl;
  }
 
 // [Instruction: Compare if reg is equal to number]  ; cmpe <register>, <number>
 if( opcode == cmpe_opcode )
  {
-   cout << "cmpe     " << getRegisterName(regName) << convertToInt("0" + arg2_12bits) << endl;
+   cout << "cmpe     " << getRegisterName(regName) << convertToInt("0" + arg2_14bits) << endl;
  }
 
 
 //[Instruction: Compare if reg is not equal to number] ; cmpne <register>, <number>
 if( opcode == cmpne_opcode )
  {
-   cout << "cmpne     " << getRegisterName(regName) << convertToInt("0" + arg2_12bits) << endl;
+   cout << "cmpne     " << getRegisterName(regName) << convertToInt("0" + arg2_14bits) << endl;
  }
 
 

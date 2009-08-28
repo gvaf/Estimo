@@ -1,0 +1,10 @@
+/// test2
+
+
+#while( COST != 10 )
+{
+ check(1,2);
+}
+
+check(4,3);
+update;

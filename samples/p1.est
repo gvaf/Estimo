@@ -1,0 +1,20 @@
+/// Example 1: test check of static pattern
+
+Pattern(hexagon)
+{
+ check(1,2)
+ check(2,0)
+ check(1,-2)
+ check(-1,-2)
+ check(-2,0)
+ check(-1,2)
+} 
+
+Pattern(test)
+{
+ check(1,-2)
+ check(-1,-2)
+}
+
+check(hexagon);
+check(test);

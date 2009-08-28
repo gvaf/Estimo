@@ -1,0 +1,38 @@
+/// Example 18: Test Math Functions
+
+print("\n\n");
+print("log2(32) = ");    print(log2(32));
+print("log10(1000) = "); print( log10(1000) );
+print("sqrt(64) = ");    print( sqrt(64)    );
+print("pow(2, 10) = ");  print( pow(2, 10)  );
+print("ln(2.7411) = ");  print( ln(2.7411)  );
+
+a = 10 * log10(1000);
+
+print("a = "); print(a);
+
+
+
+Pattern(hexagon)
+{
+ check(1,2)
+ check(2,0)
+ check(1,-2)
+ check(-1,-2)
+ check(-2,0)
+ check(-1,2)
+} 
+
+check(hexagon);
+
+#if( WINID == 0 )
+{
+  check(1.5, 2.5);
+  check(4.5, -1.5);
+  update;
+} 
+#else
+{
+  check(hexagon); 
+}
+

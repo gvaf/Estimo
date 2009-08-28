@@ -1,0 +1,81 @@
+/// Copyright (C) XXXX-XXX XXXXXXXXXXX
+/// Source D:/projects/me_interpolation_16m/estimo_sources/hex.est
+// hexagon followed by hexagon hp/qp refinement and then diamond qp
+
+qpi = 2;
+hpi = 2;
+fpi = 8;
+
+Pattern(square)
+{
+  check(0,1)
+  check(0,-1)
+  check(1,0)
+  check(-1,0)
+  check(-1,-1)
+  check(-1,1)
+  check(1,-1)
+  check(1,1)
+}
+
+Pattern(hexbs)
+{
+  check(2,0)
+  check(-2,0)
+  check(1,2)
+  check(-1,2)
+  check(1,-2)
+  check(-1,-2)
+}
+
+Pattern(hexhp)
+{
+ check(0,0.5)
+ check(0.25,-0.25)
+ check(0,-0.5)
+ check(-0.25,-0.25)
+ check(0.5,0)
+ check(0.25,0.25)
+ check(-0.5,0)
+ check(-0.25,0.25)
+}
+Pattern(diamondqp)
+{
+ check(0,0.25)
+ check(0,-0.25)
+ check(0.25,0)
+ check(-0.25,0)
+}
+
+check(0,0);
+update;
+
+//hexagon search
+for(loop = 1 to fpi step 1)
+{
+  check(hexbs);
+  #if( WINID == 0 )
+     #break;
+}
+
+//square refinement
+check(square);
+
+//half pel/quarter pel hex
+
+for(loop = 1 to hpi step 1)
+{
+  check(hexhp);
+  #if( WINID == 0 )
+     #break;
+}
+
+//quarter pel diamonds
+for(loop = 1 to qpi step 1)
+{
+  check(diamondqp);
+  #if( WINID == 0 )
+     #break;
+}
+
+

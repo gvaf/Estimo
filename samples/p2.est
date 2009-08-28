@@ -1,0 +1,13 @@
+/// Example 2: check update commands
+
+ check(-1,-2);
+ check(-2,0);
+ check(-1,2);
+ check(1,2);
+ check(2,0);
+ check(1,-2);
+ update;
+ 
+ check(2,4);
+ check(3,-2);
+ update;

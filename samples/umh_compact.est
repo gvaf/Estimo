@@ -1,0 +1,105 @@
+/* 
+    UMH algorithm
+
+*/
+
+Pattern(diamond)
+{
+ check(0,1)
+ check(0,-1)
+ check(1,0)
+ check(-1,0)
+}
+
+Pattern(hexbs)
+{
+  check(2,0)
+  check(-2,0)
+  check(1,2)
+  check(-1,2)
+  check(1,-2)
+  check(-1,-2)
+}
+
+check(diamond);
+#if (COST > 200)
+{
+  //large cross
+  // horizontal cross
+  for(i = -15 to 15 step 2)
+  {
+    check(i,0);
+  }
+  // vertical cross
+  for(i = -7 to 7 step 2)
+  {
+    check(0,i);
+  }
+  update;
+}
+#else
+{
+   //small cross
+  // horizontal cross
+  for(i = -5 to 5 step 2)
+  {
+    check(i,0);
+  }
+  // vertical cross
+  for(i = -3 to 3 step 2)
+  {
+    check(0,i);
+  }
+  update;
+}
+
+// large hexagon
+for(j = 1 to 4 step 1)
+{
+  check(j*4,0);
+  check(j*4,-1*j);
+  check(j*4,-2*j);
+  check(j*4,1*j);
+  check(j*4,2*j); 
+  check(-j*4,0);
+  check(-j*4,-1*j);
+  check(-j*4,-2*j);
+  check(-j*4,1*j);
+  check(-j*4,2*j);
+  check(2*j,-3*j);
+  check(0*j,-4*j);
+  check(-2*j,-3*j);
+  check(2*j,3*j);
+  check(0,4*j);
+  check(-2*j,3*j);
+}
+update;
+
+
+
+//small full search
+for(i = -2 to 2 step 1)
+  for(j = -2 to 2 step 1)
+     check(i, j);
+update;
+//hexagon search
+for(loop = 1 to 4 step 1)
+{
+  check(hexbs);
+  #if( WINID == 0 )
+     #break;
+}
+//diamond search
+for(loop = 1 to 4 step 1)
+{
+  check(diamond);
+  #if( WINID == 0 )
+     #break;
+}
+
+
+
+
+
+
+

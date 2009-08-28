@@ -1,0 +1,7 @@
+/// Test3
+
+#do
+{
+  check(1,2);
+} 
+#while( COST == 10);

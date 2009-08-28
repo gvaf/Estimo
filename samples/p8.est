@@ -1,0 +1,15 @@
+// Example 8: Testing nested 'if' and new pattern generation
+
+for(k = 1 to 3 step 2)
+{
+
+  for(i = 0 to 1 step 1)
+    {
+      check(i, i+k);
+      check(i-k, i+k);
+      check(i+k, i-k);
+      check(i+k, i+k);
+    }
+   update;
+
+}

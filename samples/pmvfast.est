@@ -1,0 +1,76 @@
+/* 
+ pmvfast
+ Adaptive Motion Estimation hardware support 
+ needed to calculate adaptive thresholds
+*/
+
+Pattern(square)
+{
+  check(0,-1)
+  check(0,1)
+  check(-1,0)
+  check(1,0)
+  check(-1,-1)
+  check(-1,1)
+  check(1,-1)
+  check(1,1)
+}
+
+Pattern(sdiamond)
+{
+  check(0,1)
+  check(0,-1)
+  check(1,0)
+  check(-1,0)
+}
+
+Pattern(ldiamond)
+{
+  check(0,2)
+  check(0,-2)
+  check(2,0)
+  check(-2,0)
+}
+
+check(0,0);
+update;
+
+#if(COST > 100)
+{
+  #if( COST < 500)
+  {
+     #if (LENGTH < 0xA0A)
+     {
+      // Small diamond
+      for(loop = 1 to 8 step 1)
+       {
+         check(sdiamond);
+         #if( WINID == 0 )
+           #break;
+       }
+     }
+     #else
+     {
+       // large diamond
+       for(loop = 1 to 8 step 1)
+       {
+         check(ldiamond);
+  
+          #if( WINID == 0 )
+           #break;
+       }
+     }
+  }
+  #else
+   {
+       // large diamond
+       for(loop = 1 to 8 step 1)
+       {
+         check(ldiamond);
+  
+          #if( WINID == 0 )
+           #break;
+       }
+   }
+check(square);
+}

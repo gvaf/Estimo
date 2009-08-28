@@ -1,0 +1,22 @@
+/// Copyright (C) 2007 George Vafiadis
+/// Logarithmic Search Algorithm Implementation
+
+S = 8;  // Initial step size
+
+check(0, 0);
+check(0, S);
+check(0, -S);
+check(S, 0);
+check(-S, 0);
+update;
+
+do
+{
+ S = log2(S);
+ check(0, S);
+ check(0, -S);
+ check(S, 0);
+ check(-S, 0);
+ update; 
+} while( S >= 0.25 );
+

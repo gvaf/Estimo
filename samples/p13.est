@@ -1,0 +1,29 @@
+/* 
+    Example 13: the '#break' command running on FPGA
+
+*/
+
+Pattern(hexagon)
+{
+ check(1,2)
+ check(2,0)
+ check(1,-2)
+ check(-1,-2)
+ check(-2,0)
+ check(-1,2)
+} 
+
+for(k = 1 to 2 step 1)
+{
+  for(i = 0 to 1 step 1)
+   {
+      check(i,k);
+      check(i+1, k+1);
+      update;
+
+      #if( WINID == 0 )
+       {
+         #break;
+       }
+   }
+}

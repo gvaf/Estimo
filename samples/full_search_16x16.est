@@ -1,0 +1,16 @@
+// Full search 15x15 Jose Nunez-Yanez
+
+//first point
+check(0,0);
+update;
+
+//full search
+for(i = -7 to 7 step 1)
+  for(j = -7 to 7 step 1)
+     check(i, j);
+update;
+
+
+
+
+

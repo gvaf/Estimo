@@ -1,0 +1,24 @@
+/// Example 16: Test #if-#else
+
+Pattern(hexagon)
+{
+ check(1,2)
+ check(2,0)
+ check(1,-2)
+ check(-1,-2)
+ check(-2,0)
+ check(-1,2)
+} 
+
+check(hexagon);
+
+#if( WINID == 0 )
+{
+  check(1.5, 2.5);
+  check(4.5, -1.5);
+  update;
+} 
+#else
+{
+  check(hexagon); 
+}

@@ -1,0 +1,32 @@
+/// Copyright (C) XXXX-XXX XXXXXXXXXXX
+/// Source D:/sharpeye/tests/samples/p22.est
+
+
+Pattern(diamond)
+{
+ check(0,1)
+ check(0,-1)
+ check(1,0)
+ check(-1,0)
+}
+
+Pattern(hexbs)
+{
+  check(2,0)
+  check(-2,0)
+  check(1,2)
+  check(-1,2)
+  check(1,-2)
+  check(-1,-2)
+}
+
+check(diamond);
+
+#if(COST != 200)
+{
+  check(diamond);
+}
+#else
+{
+   check(hexbs);
+}

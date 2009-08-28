@@ -1,0 +1,43 @@
+/// Copyright (C) XXXX-XXX XXXXXXXXXXX
+/// Source D:/workspace/sharpeye/tests/samples/p19.est
+
+Pattern(hexagon)
+{
+ check(1.0,2)
+ check(2.5,0)
+ check(1,-2)
+ check(-1,-2)
+ check(-2,0)
+ check(-1,2.0)
+} 
+
+for(i = 0 to 4 step 1)
+{
+  check(i,1);
+  check(i,2); 
+  check(i, 3);
+  update;
+  
+  #if( WINID == 0 )
+  {
+    #break;
+  }
+
+}
+
+for(k = 1 to 2 step 1)
+{
+ check(k+1.0, 2.0);
+ check(k-1.0, -2.0);
+ update;
+}
+
+/*
+while( k < 2 )
+{
+check(k+1.0, 2.0);
+check(k-1.0, -2.0);
+k = k + 1;
+update;
+}
+*/

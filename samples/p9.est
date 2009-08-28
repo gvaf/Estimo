@@ -1,0 +1,57 @@
+// Example 9: Testing 'break' command on PC/interpreter level  'for', 'while', 'do-while'.
+
+//------------------------------------------------------------------------------------------------------
+
+for(i = 0 to 10 step 1)
+{
+  if( i >= 4 )
+     break;          /// <- exit the loop when i >= 4, running on interpreter
+  else
+  {
+    check(i,i+1);
+    check(i+1, i+2);
+    check(i+2, i+3);
+    update;
+  }
+}
+
+//------------------------------------------------------------------------------------------------------
+
+i = 0;
+while(i <= 10)
+{
+  if( i >= 4 )
+     break;          /// <- exit the loop when i >= 4, running on interpreter
+  else
+  {
+    check(i,i+1);
+    check(i+1, i+2);
+    check(i+2, i+3);
+    update;
+  }
+
+ i = i + 1;
+}
+
+
+//------------------------------------------------------------------------------------------------------
+
+i = 0;
+do
+{
+  if( i >= 4 )
+     break;          /// <- exit the loop when i >= 4, running on interpreter
+  else
+  {
+    check(i,i+1);
+    check(i+1, i+2);
+    check(i+2, i+3);
+    update;
+  }
+
+ i = i + 1;
+
+} while(i <= 10);
+
+//------------------------------------------------------------------------------------------------------
+
