@@ -104,7 +104,7 @@ int lines = 0;
 
 [A-Za-z][A-Za-z0-9_]*       { strncpy(estimolval.str, yytext, 79); return T_ID;}
 [0-9]+"."?[0-9]*            {estimolval.n = (float)atof(yytext); return T_NUM;}
-"0x"[ABCDEF0-9]+            { const char * hexNum = yytext; int n; sscanf(hexNum, "%x", &n); estimolval.n = (float)n; return T_NUM;}
+"0x"[abcdefABCDEF0-9]+            { const char * hexNum = yytext; int n; sscanf(hexNum, "%x", &n); estimolval.n = (float)n; return T_NUM;}
 
 \"[A-Za-z0-9_.:+-=()\\@#$%^&*\t ]*\"  {strcpy(estimolval.str, yytext); return T_STRING;}
 

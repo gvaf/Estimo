@@ -15,7 +15,6 @@
 #define DIA_AX (2 * EXTRA_POINTS - 1)
 #define DIA_AY (2 * EXTRA_POINTS - 1)
 
-#define RCOST 0
 typedef struct {
     const uint32_t *prog_mem;
     const uint16_t *point_mem;
@@ -35,13 +34,11 @@ typedef struct {
     int qpts_done[256 * 2];
     int qpts_done_off, qpts_done_n, qpts_done_cap;
 
-    int freg[16];
-    int fx, fy;
+    int fcost, fx, fy;
     uint8_t fcounter, ffirst, fjmpflag;
     int fwinner;
 
-    int qreg[16];
-    int qfx, qfy, qx, qy;
+    int qcost, qfx, qfy, qx, qy;
     uint8_t qcounter, qjmpflag;
     int qwinner;
 

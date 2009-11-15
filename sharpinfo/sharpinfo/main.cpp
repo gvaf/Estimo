@@ -25,6 +25,8 @@
 #include <math.h>
 #include <fstream>
 #include <map>
+#include <sstream>
+#include <iomanip>
 #include <vector>
 #include <string>
 using namespace std;
@@ -236,6 +238,24 @@ std::string getRegisterName(std::string bits)
   if( bits == LENGTH ) return "length  ";
 }
 
+std::string compRegValueStr(std::string bits, int param)
+{
+  std::string regName;
+  std::ostringstream s;
+
+  if( bits == COST )
+  {
+	  regName = "cost    ";
+	  s << regName << dec << param;
+
+  } else if( bits == LENGTH )
+  {
+	   regName = "length  ";    
+	   s << regName << "0x" << setw( 4 ) << std::setfill( '0' ) << std::hex << param;
+  }
+
+  return s.str();
+}
 
 void getInfo(string line)
 {
@@ -281,26 +301,26 @@ void getInfo(string line)
  // [Instruction: Compare if reg Less than number]  cmpl <register>, <number>
 if( opcode == cmpl_opcode )
  {
-   cout << "cmpl     " << getRegisterName(regName) << convertToInt("0" + arg2_14bits) << endl;
+   cout << "cmpl     " << compRegValueStr(regName, convertToInt("0" + arg2_14bits)) << endl;
  }
 
 //[Instruction: Compare if reg greater than number] ; cmpg <register>, <number>
 if( opcode == cmpg_opcode )
  {
-   cout << "cmpg     " << getRegisterName(regName) << convertToInt("0" + arg2_14bits) << endl;
+   cout << "cmpg     " <<  compRegValueStr(regName, convertToInt("0" + arg2_14bits)) << endl;
  }
 
 // [Instruction: Compare if reg is equal to number]  ; cmpe <register>, <number>
 if( opcode == cmpe_opcode )
  {
-   cout << "cmpe     " << getRegisterName(regName) << convertToInt("0" + arg2_14bits) << endl;
+   cout << "cmpe     " <<  compRegValueStr(regName, convertToInt("0" + arg2_14bits)) << endl;
  }
 
 
 //[Instruction: Compare if reg is not equal to number] ; cmpne <register>, <number>
 if( opcode == cmpne_opcode )
  {
-   cout << "cmpne     " << getRegisterName(regName) << convertToInt("0" + arg2_14bits) << endl;
+   cout << "cmpne     " <<  compRegValueStr(regName, convertToInt("0" + arg2_14bits)) << endl;
  }
 
 

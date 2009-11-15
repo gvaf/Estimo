@@ -135,7 +135,7 @@ cas_new(const uint32_t *prog_mem, const uint16_t *point_mem, int feu, int foptl,
     cas->last_qcycles = 0;
 
     cas->cycles = cas->fcycles = cas->qcycles = cas->could_save_cycles = 0;
-    cas->energy_pJ = 0;
+    cas->energy_pJ = 0.0;
 
     return cas;
 }
@@ -179,7 +179,7 @@ cas_process(cas_t *cas,
 
     cas->fx = pmx;
     cas->fy = pmy;
-    cas->freg[RCOST] = 1 << 28;
+    cas->fcost = 1 << 28;
     cas->fcounter = 0;
     cas->fjmpflag = 0;
     cas->fwinner = 0;
@@ -195,7 +195,7 @@ cas_retrieve(cas_t *cas, int *x, int *y, int *cost)
 
     *x = (cas->qfx << 2) + cas->qx;
     *y = (cas->qfy << 2) + cas->qy;
-    *cost = cas->qreg[RCOST];
+    *cost = cas->qcost;
 
     cas->ready = 0;
     cas->qidle = 1;
@@ -238,7 +238,7 @@ cas_execute(cas_t *cas)
         cas->qfx = cas->fx;
         cas->qfy = cas->fy;
         cas->qx = cas->qy = 0;
-        cas->qreg[RCOST] = cas->freg[RCOST];
+        cas->qcost = cas->fcost;
         cas->qcounter = cas->fcounter;
 	cas->qjmpflag = cas->fjmpflag;
         cas->qwinner = 0;
@@ -283,8 +283,8 @@ esa(cas_t *cas, int n)
             int cost = sad((uint8_t *)cas->fcur, cas->fcur_stride,
                            (uint8_t *)cas->ref + x + y * cas->ref_stride, cas->ref_stride);
             cost += cas->p_cost_mvx[x << 2] + cas->p_cost_mvy[y << 2];
-            if (cost < cas->freg[RCOST]) {
-                cas->freg[RCOST] = cost;
+            if (cost < cas->fcost) {
+                cas->fcost = cost;
                 cas->fx = x;
                 cas->fy = y;
             }
@@ -327,15 +327,45 @@ cas_execute_full(cas_t *cas)
             break;
         case 5: /* less than */
             ++cycles;
-            cas->fjmpflag = cas->freg[inst & 0xf000] < (inst & 0x0fff);
+	    switch ((inst & 0xc000) >> 14) {
+	    case 0:
+                cas->fjmpflag = cas->fcost < (inst & 0x3fff);
+                break;
+	    case 1:
+                cas->fjmpflag = (abs(cas->fx) < ((inst & 0x3f80) >> 7)
+		                 || abs(cas->fy) < (inst & 0x7f));
+                break;
+	    default:
+                cas->fjmpflag = 0;
+	    }
             break;
         case 6: /* greater than */
             ++cycles;
-            cas->fjmpflag = cas->freg[inst & 0xf000] > (inst & 0x0fff);
+	    switch ((inst & 0xc000) >> 14) {
+	    case 0:
+                cas->fjmpflag = cas->fcost > (inst & 0x3fff);
+                break;
+	    case 1:
+                cas->fjmpflag = (abs(cas->fx) > ((inst & 0x3f80) >> 7)
+		                 && abs(cas->fy) > (inst & 0x7f));
+                break;
+	    default:
+                cas->fjmpflag = 0;
+	    }
             break;
         case 7: /* equal to */
             ++cycles;
-            cas->fjmpflag = cas->freg[inst & 0xf000] == (inst & 0x0fff);
+	    switch ((inst & 0xc000) >> 14) {
+	    case 0:
+                cas->fjmpflag = cas->fcost == (inst & 0x3fff);
+                break;
+	    case 1:
+                cas->fjmpflag = (abs(cas->fx) == ((inst & 0x3f80) >> 7)
+		                 && abs(cas->fy) == (inst & 0x7f));
+                break;
+            default:
+                cas->fjmpflag = 0;
+	    }
             break;
 	case 15: /* exhaustive */
             esa(cas, inst & 0xff);
@@ -441,15 +471,45 @@ cas_execute_quarter(cas_t *cas)
             break;
         case 5: /* less than */
             ++cycles;
-            cas->qjmpflag = cas->qreg[inst & 0xf000] < (inst & 0x0fff);
+	    switch ((inst & 0xc000) >> 14) {
+	    case 0:
+                cas->qjmpflag = cas->qcost < (inst & 0x3fff);
+                break;
+	    case 1:
+                cas->qjmpflag = (abs(cas->qx) < ((inst & 0x3f80) >> 7)
+		                 || abs(cas->qy) < (inst & 0x7f));
+                break;
+	    default:
+                cas->qjmpflag = 0;
+	    }
             break;
         case 6: /* greater than */
             ++cycles;
-            cas->qjmpflag = cas->qreg[inst & 0xf000] > (inst & 0x0fff);
+	    switch ((inst & 0xc000) >> 14) {
+	    case 0:
+                cas->qjmpflag = cas->qcost > (inst & 0x3fff);
+                break;
+	    case 1:
+                cas->qjmpflag = (abs(cas->qx) > ((inst & 0x3f80) >> 7)
+		                 && abs(cas->qy) > (inst & 0x7f));
+                break;
+	    default:
+                cas->qjmpflag = 0;
+	    }
             break;
         case 7: /* equal to */
             ++cycles;
-            cas->qjmpflag = cas->qreg[inst & 0xf000] == (inst & 0x0fff);
+	    switch ((inst & 0xc000) >> 14) {
+	    case 0:
+                cas->qjmpflag = cas->qcost == (inst & 0x3fff);
+                break;
+	    case 1:
+                cas->qjmpflag = (abs(cas->qx) == ((inst & 0x3f80) >> 7)
+		                 && abs(cas->qy) == (inst & 0x7f));
+                break;
+	    default:
+                cas->qjmpflag = 0;
+	    }
             break;
         }
     }
@@ -527,8 +587,8 @@ full_pel_first(cas_t *cas, uint16_t pt)
 	cost = sad((uint8_t *)cas->fcur, cas->fcur_stride,
                    (uint8_t *)cas->ref + x + y * cas->ref_stride, cas->ref_stride);
 	cost += cas->p_cost_mvx[x << 2] + cas->p_cost_mvy[y << 2];
-        if (i == -1 || cost < cas->freg[RCOST]) {
-            cas->freg[RCOST] = cost;
+        if (i == -1 || cost < cas->fcost) {
+            cas->fcost = cost;
             cas->fx = x;
             cas->fy = y;
         }
@@ -559,8 +619,8 @@ full_pel(cas_t *cas, uint8_t point_n, uint8_t point_addr)
 	cost = sad((uint8_t *)cas->fcur, cas->fcur_stride,
                    (uint8_t *)cas->ref + x + y * cas->ref_stride, cas->ref_stride);
 	cost += cas->p_cost_mvx[x << 2] + cas->p_cost_mvy[y << 2];
-        if (cost < cas->freg[RCOST]) {
-            cas->freg[RCOST] = cost;
+        if (cost < cas->fcost) {
+            cas->fcost = cost;
             cas->fwinner = i + 1;
             cas->fx = x;
             cas->fy = y;
@@ -639,8 +699,8 @@ frac_pel(cas_t *cas, uint8_t point_n, uint8_t point_addr)
         }
 
         cost += cas->p_cost_mvx[qfx + qx] + cas->p_cost_mvy[qfy + qy];
-        if (cost < cas->qreg[RCOST]) {
-            cas->qreg[RCOST] = cost;
+        if (cost < cas->qcost) {
+            cas->qcost = cost;
             cas->qwinner = i + 1;
             cas->qx = qx;
             cas->qy = qy;

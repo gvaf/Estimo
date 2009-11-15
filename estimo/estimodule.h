@@ -28,6 +28,10 @@
 #include <QString>
 #include <QDebug>
 #include <QVector>
+#include <iostream>
+#include <iomanip>
+#include <sstream>
+#include <string>
 
 #include "entity.h"
 #include "patterntable.h"
@@ -431,9 +435,7 @@ class AsmCondition : public Entity
  public:
 
    /// Constructor
-   AsmCondition(float _reg, float _oper, float _num)
-    : reg(_reg), oper(_oper), num(_num)
-   {}
+   AsmCondition(float _reg, float _oper, float _num);
 
   /// Destructor
   virtual ~AsmCondition() {};
@@ -693,19 +695,7 @@ class AsmCmp : public AsmCommand
  public:
 
   /// Constructor
-  AsmCmp(float type, float reg, float num) 
-  {
-	if( num >= AssemblyDoc::CMP_MIN  && num <= AssemblyDoc::CMP_MAX )
-	{   
-      this->type = type;
-      this->reg  = reg;
-      this->num  = num;
-	}
-	else
-	{
-	  throw SemanticError(QString("Error: %1 number is out of range %2 ... %3").arg(num).arg(AssemblyDoc::CMP_MIN).arg(AssemblyDoc::CMP_MAX));
-	}
-  }
+  AsmCmp(float type, float reg, float num);
 
   /// Emit machine code
   virtual float eval(EvalParam *param) const;

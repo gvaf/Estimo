@@ -369,51 +369,158 @@ float AsmCondition::getOperation()
 
 //------------------------------------------------------------------
 
+/// Constructor -- deprecated
+AsmCmp::AsmCmp(float type, float reg, float num) 
+{
+	if( num >= AssemblyDoc::CMP_MIN  && num <= AssemblyDoc::CMP_MAX )
+	{   
+		this->type = type;
+		this->reg  = reg;
+		this->num  = num;
+	}
+	else
+	{
+		throw SemanticError(QString("Error: %1 number is out of range %2 ... %3").arg(num).arg(AssemblyDoc::CMP_MIN).arg(AssemblyDoc::CMP_MAX));
+	}
+}
+
+
+//------------------------------------------------------------------
+
+AsmCondition::AsmCondition(float _reg, float _oper, float _num)
+  : reg(_reg), oper(_oper), num(_num)
+{
+	switch((int)reg)
+	{
+	case T_LENGTH:
+		{
+			int xy = static_cast<int>(num);
+
+			std::ostringstream s;
+			s << setw( 4 ) << setfill( '0' ) << hex << xy;
+
+
+			if( s.str().length() == 4 )				
+			{				
+				this->reg  = reg;
+				this->num  = num;
+			}
+			else
+				throw SemanticError(QString("Error: LENGTH's compare argument should be two bytes like 0xaabb."));
+
+		}
+		break;
+
+	case T_WINID:
+	case T_COST:	  	  
+	default:
+
+		if( num >= AssemblyDoc::CMP_MIN  && num <= AssemblyDoc::CMP_MAX )
+		{   			
+			this->reg  = reg;
+			this->num  = num;
+		}
+		else
+		{
+			throw SemanticError(QString("Error: %1 number is out of range %2 ... %3").arg(num).arg(AssemblyDoc::CMP_MIN).arg(AssemblyDoc::CMP_MAX));
+		}
+	}
+}
+
+//------------------------------------------------------------------
+
 /// compare evaluation #if, #while, #do-while
 float AsmCondition::eval(EvalParam *param) const 
 {
-  if( reg == T_WINID )
-  {
-   if( oper != T_EQ )	   
-       throw RunTimeException(RunTimeException::INVALID_WIN_COMPARE);
+	if( reg == T_WINID )
+	{
+		if( oper != T_EQ )	   
+			throw RunTimeException(RunTimeException::INVALID_WIN_COMPARE);
 
-   QString jumpLabel = param->label;
+		QString jumpLabel = param->label;
 
-   new CheckJumpCmd( Entity::doc, QString("%1").arg(num), jumpLabel ); ///<   chkjmp 0,  L12
-	                 
-   return AsmCondition::WINNING;
-  }
-  else
-  {
-    CmpCmd::REGISTER r;
-    CmpCmd::OPERATOR op;
-    float other = num; 
+		new CheckJumpCmd( Entity::doc, QString("%1").arg(num), jumpLabel ); ///<   chkjmp 0,  L12
 
-	if( reg == T_COST )   r = CmpCmd::COST;
-	if( reg == T_LENGTH ) r = CmpCmd::LENGTH;
+		return AsmCondition::WINNING;
+	}
+	else if ( reg == T_LENGTH )
+	{
+		CmpCmd::REGISTER r;
+		CmpCmd::OPERATOR op;
+		int xy = num, x, y;
+		
+		std::ostringstream sout;		
+		sout << setw( 4 ) << std::setfill( '0' ) << std::hex << xy;
+		std::string s = sout.str().substr(0,2) + " " + sout.str().substr(2,4); 		
+		
+	    std::istringstream sread(s);
+		sread >> std::hex >> x >> y;
 
-	// sad < 10  -not-> sad >= 10 -> sad > 9
-	if( oper == T_LT ) { op = CmpCmd::GREATER; --other; }
+/*
+		cout << "@hex x = " << sout.str().substr(0,2) << endl;
+		cout << "@hex y = " << sout.str().substr(2,2) << endl;
+		cout << "@num = " << num << endl;
+		cout << "@xy = " << xy << endl;
+		cout << "@x = " << x << endl;
+		cout << "@y = " << y << endl;
+        cout << "@new xy = " << xy << endl;
+*/
+		r = CmpCmd::LENGTH;
 
-	// sad >= 10 -not-> sad < 10
-	if( oper == T_GE ) { op = CmpCmd::LESS; }
+		// sad < 10  -not-> sad >= 10 -> sad > 9
+		if( oper == T_LT ) { op = CmpCmd::GREATER; --x; --y; }
 
-	// sad <= 10 -not-> sad > 10 
-    if( oper == T_LE ) { op = CmpCmd::GREATER; }
+		// sad >= 10 -not-> sad < 10
+		if( oper == T_GE ) { op = CmpCmd::LESS; }
 
-	// sad > 10 -not-> sad <= 10 -> sad < 11
-	if( oper == T_GT ) { op = CmpCmd::LESS; ++other; }
+		// sad <= 10 -not-> sad > 10 
+		if( oper == T_LE ) { op = CmpCmd::GREATER; }
 
-    if( oper == T_EQ || oper == T_NE )  op = CmpCmd::EQUAL;
-    // disabled the not equal -- if( oper == T_NE )  op = CmpCmd::NOT_EQUAL;		 
+		// sad > 10 -not-> sad <= 10 -> sad < 11
+		if( oper == T_GT ) { op = CmpCmd::LESS; ++x; ++y; }
 
-    new CmpCmd(doc, r, op, other);
+		if( oper == T_EQ || oper == T_NE )  op = CmpCmd::EQUAL;
+		// disabled the not equal -- if( oper == T_NE )  op = CmpCmd::NOT_EQUAL;		 
 
-	if( oper == T_EQ ) return AsmCondition::EQUAL_OPERATOR;
-	if( oper == T_NE ) return AsmCondition::NOT_EQUAL_OPERATOR;
+		xy = ( (x  & 0x7f) << 7 ) | (y & 0x7f);
 
-    return AsmCondition::REGISTER;
-  }
+		new CmpCmd(doc, r, op, xy);
+
+		if( oper == T_EQ ) return AsmCondition::EQUAL_OPERATOR;
+		if( oper == T_NE ) return AsmCondition::NOT_EQUAL_OPERATOR;
+
+		return AsmCondition::REGISTER;
+	}
+	else
+	{
+		CmpCmd::REGISTER r;
+		CmpCmd::OPERATOR op;
+		float other = num;
+
+		if( reg == T_COST )   r = CmpCmd::COST;
+
+		// sad < 10  -not-> sad >= 10 -> sad > 9
+		if( oper == T_LT ) { op = CmpCmd::GREATER; --other; }
+
+		// sad >= 10 -not-> sad < 10
+		if( oper == T_GE ) { op = CmpCmd::LESS; }
+
+		// sad <= 10 -not-> sad > 10 
+		if( oper == T_LE ) { op = CmpCmd::GREATER; }
+
+		// sad > 10 -not-> sad <= 10 -> sad < 11
+		if( oper == T_GT ) { op = CmpCmd::LESS; ++other; }
+
+		if( oper == T_EQ || oper == T_NE )  op = CmpCmd::EQUAL;
+		// disabled the not equal -- if( oper == T_NE )  op = CmpCmd::NOT_EQUAL;		 
+
+		new CmpCmd(doc, r, op, other);
+
+		if( oper == T_EQ ) return AsmCondition::EQUAL_OPERATOR;
+		if( oper == T_NE ) return AsmCondition::NOT_EQUAL_OPERATOR;
+
+		return AsmCondition::REGISTER;
+	}
 }
 
 //------------------------------------------------------------------

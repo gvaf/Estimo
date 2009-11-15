@@ -22,6 +22,10 @@
  */
 
 #include <QString>
+#include <string>
+#include <sstream>
+#include <iostream>
+#include <iomanip>
 #include "semanticerror.h"
 #include "asmcommand.h"
 #include "assemblydoc.h"
@@ -113,9 +117,10 @@ CmpCmd::CmpCmd(AssemblyDoc & doc, CmpCmd::REGISTER _reg, CmpCmd::OPERATOR _opr, 
     opr = _opr;
     num = _num;
 
+	/*
     if(!( num >= AssemblyDoc::CMP_MIN  && num <= AssemblyDoc::CMP_MAX ) )
 	  throw SemanticError(QString("Error: %1 number is out of range %2 ... %3").arg(num).arg(AssemblyDoc::CMP_MIN).arg(AssemblyDoc::CMP_MAX));
-
+*/
     doc.addNewCmd(this); 
 }
 
@@ -133,14 +138,29 @@ QString CmpCmd::evalString() const
   if( opr == EQUAL)     cmd = "cmpe";
   if( opr == NOT_EQUAL) cmd = "cmpne";
 
-  if( reg == CmpCmd::COST )   regstr = "cost";
-  if( reg == CmpCmd::LENGTH ) regstr = "length";
-
   // deprecated
   if( reg == CmpCmd::SAD )    regstr = "sad";
-  if( reg == CmpCmd::MX )  regstr = "Mx";
-  if( reg == CmpCmd::MY )  regstr = "My";
+  if( reg == CmpCmd::MX )     regstr = "Mx";
+  if( reg == CmpCmd::MY )     regstr = "My";
 
+
+  if( reg == CmpCmd::COST )   regstr = "cost";
+  
+  if( reg == CmpCmd::LENGTH ) 
+  {
+	  regstr = "length";
+      QString asmtext;
+	  std::ostringstream s;
+	  int param = num;
+
+	  s << "0x" << std::setw( 4 ) << std::setfill( '0' ) << std::hex << param;
+
+      asmtext = QString("%1   %2 %3, %4 ").arg(lbl).arg(cmd).arg(regstr).arg(s.str().c_str());
+
+	  return asmtext;
+  }
+  
+  
  return QString("%1   %2 %3, %4 ").arg(lbl).arg(cmd).arg(regstr).arg(num);
 }
 
