@@ -406,13 +406,35 @@ AsmCondition::AsmCondition(float _reg, float _oper, float _num)
 				this->num  = num;
 			}
 			else
-				throw SemanticError(QString("Error: LENGTH's compare argument should be two bytes like 0xaabb."));
+				throw SemanticError(QString("Error: LENGTH's compare argument should be two bytes, e.x. 0xaabb."));
 
 		}
 		break;
 
 	case T_WINID:
-	case T_COST:	  	  
+
+		if( num < 0 || num > 255)
+            throw SemanticError(QString("Error: In WINID comparison the number of points should be between [0, 255] ."));
+
+		break;
+	case T_COST:
+		
+		if( num < 0 ) 
+		{
+			float original_num = num;
+			num = 0.0;
+			cout << "Warning: In COST comparison " << original_num << " changed to " << num << "." << endl;
+		}
+		else
+		if( num >= 16384 ) 
+		{
+			float original_num = num;
+			num = 16383;
+		    cout << "Warning: In COST comparison " << original_num << " changed to " << num << "." << endl;
+		}
+		
+
+		break;
 	default:
 
 		if( num >= AssemblyDoc::CMP_MIN  && num <= AssemblyDoc::CMP_MAX )
@@ -456,15 +478,6 @@ float AsmCondition::eval(EvalParam *param) const
 	    std::istringstream sread(s);
 		sread >> std::hex >> x >> y;
 
-/*
-		cout << "@hex x = " << sout.str().substr(0,2) << endl;
-		cout << "@hex y = " << sout.str().substr(2,2) << endl;
-		cout << "@num = " << num << endl;
-		cout << "@xy = " << xy << endl;
-		cout << "@x = " << x << endl;
-		cout << "@y = " << y << endl;
-        cout << "@new xy = " << xy << endl;
-*/
 		r = CmpCmd::LENGTH;
 
 		// sad < 10  -not-> sad >= 10 -> sad > 9
