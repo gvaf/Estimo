@@ -203,7 +203,7 @@ CT::CycleTimer::CycleTimer(QWidget* parent)
 	cPartitions->setCurrentIndex(0);
 
 	QLabel* lFrequency = new QLabel(tr("Core frequenc&y (MHz):"));
-	cFrequency = createSpinBox(1, 1000, 10, 50);
+	cFrequency = createSpinBox(1, 1000, 10, 200);
 	lFrequency->setBuddy(cFrequency);
 
 	cMVCost = new QCheckBox(tr("Enable &Motion Vector cost optimization"));
@@ -313,7 +313,6 @@ CT::CycleTimer::CycleTimer(QWidget* parent)
 
 	resultsGroupBox->setLayout(resLayout);
 
-
 	runButton = createButton(tr("R&un"), this, SLOT(run()));
 	runButton->setDefault(true);
 	stopButton = createButton(tr("&Stop"), this, SLOT(stop()));
@@ -327,11 +326,23 @@ CT::CycleTimer::CycleTimer(QWidget* parent)
 	buttonBox->addButton(plotButton, QDialogButtonBox::ActionRole);
 	buttonBox->addButton(tableButton, QDialogButtonBox::ActionRole);
 
-
 	QVBoxLayout* mainLayout = new QVBoxLayout;
-	mainLayout->addWidget(confGroupBox);
-	mainLayout->addWidget(videoGroupBox);
-	mainLayout->addWidget(resultsGroupBox);
+	QVBoxLayout* configLayout  = new QVBoxLayout;
+	QVBoxLayout* resultPaneLayout = new QVBoxLayout;
+	QHBoxLayout* resultLayout = new QHBoxLayout;
+	
+	resultPaneLayout->addWidget(
+		new QLabel("Note: Power figures are based on measurements taken on a Xilinx Virtex-4 SX35 device\n"
+	           "running the core and should not be compared with estimates taken from the Xpower tool."));
+
+	configLayout->addWidget(confGroupBox);
+	configLayout->addWidget(videoGroupBox);
+
+    resultLayout->addLayout(configLayout);
+	resultLayout->addLayout(resultPaneLayout);
+    resultPaneLayout->addWidget(resultsGroupBox);
+		
+	mainLayout->addLayout(resultLayout);
 	mainLayout->addWidget(buttonBox);
 
 	QWidget* widget = new QWidget();
