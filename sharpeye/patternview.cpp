@@ -355,8 +355,8 @@ OutputDialog::OutputDialog(QString outpath, QString result, QWidget *parent)
 	tabs->addTab(confText,    "Configuration");
 
 	loadFile(outputPath + "/assembly.asm", asmText);
-	loadInfo("-mem", outputPath + "/patterns.bin", pointsText);
-	loadInfo("-pro", outputPath + "/program.bin", programText);
+	loadInfo("-mem", outputPath + "/patterns.mif", pointsText);
+	loadInfo("-pro", outputPath + "/program.mif", programText);
 
 	outText->setPlainText(result);
 	

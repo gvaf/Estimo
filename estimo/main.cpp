@@ -31,7 +31,7 @@ using namespace std;
 #include "binaryword.h"
 #include "settings.h"
 
-#define VERSION "Estimo C Compiler v4.2"
+#define VERSION "Estimo C Compiler v4.3"
 
 int main(int argc, char **argv)
 {

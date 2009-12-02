@@ -43,6 +43,7 @@ enum Variable {
 	VarFull,
 	VarQuarter,
 	VarPartitions,
+	VarFrequency,
 	VarMVCost,
 	VarMVCand,
 	VarLUT,
@@ -61,7 +62,10 @@ enum Variable {
 	VarCycles,
 	VarCyclesParallel,
 
+	VarPower,
+	VarEnergyParallel,
 	VarEnergyMB,
+	VarEnergyMBParallel,
 	VarCyclesMB,
 	VarCyclesMBParallel,
 	VarFPS,
@@ -78,6 +82,7 @@ struct PointConf
 	QString pointMem;
 	int full;
 	int quarter;
+	int frequency;
 	int partitions;
 	bool mvCost;
 	bool mvCand;
@@ -162,6 +167,7 @@ private:
 	QLabel* bFull;
 	QLabel* bQuarter;
 	QLabel* bPartitions;
+	QLabel* bFrequency;
 	QLabel* bMVCost;
 	QLabel* bMVCand;
 	QLabel* bLUT;
@@ -172,11 +178,13 @@ private:
 	QLabel* bRefFrames;
 	QLabel* bBitRate;
 	QLabel* bPSNR;
-	QLabel* bEnergyMB;
+	QLabel* bPower;
 	QLabel* bFPS;
 	QLabel* bCyclesMB;
+	QLabel* bEnergyMB;
 	QLabel* bFPSParallel;
 	QLabel* bCyclesMBParallel;
+	QLabel* bEnergyMBParallel;
 
 private slots:
 	void changed(PointItem* point);

@@ -202,6 +202,10 @@ CT::CycleTimer::CycleTimer(QWidget* parent)
 	cPartitions->addItem(tr("4x4"), 4);
 	cPartitions->setCurrentIndex(0);
 
+	QLabel* lFrequency = new QLabel(tr("Core frequenc&y (MHz):"));
+	cFrequency = createSpinBox(1, 1000, 10, 50);
+	lFrequency->setBuddy(cFrequency);
+
 	cMVCost = new QCheckBox(tr("Enable &Motion Vector cost optimization"));
 	cMVCost->setChecked(true);
 	cMVCand = new QCheckBox(tr("Enable &Motion Vector candidates"));
@@ -224,6 +228,8 @@ CT::CycleTimer::CycleTimer(QWidget* parent)
 	confLayout->addWidget(cRefFrames, y++, 2);
 	confLayout->addWidget(lParitions, y, 0, 1, 2);
 	confLayout->addWidget(cPartitions, y++, 2);
+	confLayout->addWidget(lFrequency, y, 0, 1, 2);
+	confLayout->addWidget(cFrequency, y++, 2);
 	confLayout->addWidget(cMVCost, y++, 0, 1, 3);
 	confLayout->addWidget(cMVCand, y++, 0, 1, 3);
 	confGroupBox->setLayout(confLayout);
@@ -280,6 +286,7 @@ CT::CycleTimer::CycleTimer(QWidget* parent)
 	bFull = resBox(resLayout, y++, x, tr("Full-pel units:"));
 	bQuarter = resBox(resLayout, y++, x, tr("Sub-pel units:"));
 	bPartitions = resBox(resLayout, y++, x, tr("Smallest partition:"));
+	bFrequency = resBox(resLayout, y++, x, tr("Core frequency (MHz):"));
 	bMVCost = resBox(resLayout, y++, x, tr("MV cost optimization:"));
 	bMVCand = resBox(resLayout, y++, x, tr("MV candidates:"));
 	bLUT = resBox(resLayout, y++, x, tr("Logic cells:"));
@@ -292,12 +299,14 @@ CT::CycleTimer::CycleTimer(QWidget* parent)
 	resLabel(resLayout, y++, x, tr("Results:"));
 	bBitRate = resBox(resLayout, y++, x, tr("Bit rate (kbit/s):"));
 	bPSNR = resBox(resLayout, y++, x, tr("PSNR (dB):"));
-	bEnergyMB = resBox(resLayout, y++, x, tr("Energy / macroblock (nJ):"));
+	bPower = resBox(resLayout, y++, x, tr("Power (mW):"));
 	bFPS = resBox(resLayout, y++, x, tr("FPS:"));
 	bCyclesMB = resBox(resLayout, y++, x, tr("Cycles / macroblock:"));
+	bEnergyMB = resBox(resLayout, y++, x, tr("Energy / macroblock (nJ):"));
 	resLabel(resLayout, y++, x, tr("Full- and sub-pel in parallel:"));
 	bFPSParallel = resBox(resLayout, y++, x, tr("FPS:"));
 	bCyclesMBParallel = resBox(resLayout, y++, x, tr("Cycles / macroblock:"));
+	bEnergyMBParallel = resBox(resLayout, y++, x, tr("Energy / macroblock (nJ):"));
 
 	y += 2;
 	bQueue = resBox(resLayout, y++, x, tr("Run queue:"), 0);
@@ -343,6 +352,7 @@ void CT::CycleTimer::updateResults(PointItem* po)
 	bFull->setText(QString::number(pt.full));
 	bQuarter->setText(QString::number(pt.quarter));
 	bPartitions->setText(pt.strVal(VarPartitions));
+	bFrequency->setText(pt.strVal(VarFrequency));
 	bMVCost->setText(pt.strVal(VarMVCost));
 	bMVCand->setText(pt.strVal(VarMVCand));
 	bLUT->setText(QString::number(pt.lut));
@@ -353,20 +363,24 @@ void CT::CycleTimer::updateResults(PointItem* po)
 		bFrames->setText(QString::number(0));
 		bBitRate->setText(QString());
 		bPSNR->setText(QString());
-		bEnergyMB->setText(QString());
+		bPower->setText(QString());
 		bFPS->setText(QString());
 		bCyclesMB->setText(QString());
+		bEnergyMB->setText(QString());
 		bFPSParallel->setText(QString());
 		bCyclesMBParallel->setText(QString());
+		bEnergyMBParallel->setText(QString());
 	} else {
 		bFrames->setText(pt.strVal(VarFrames));
 		bBitRate->setText(pt.strVal(VarBitRate));
 		bPSNR->setText(pt.strVal(VarPSNR));
-		bEnergyMB->setText(pt.strVal(VarEnergyMB));
+		bPower->setText(pt.strVal(VarPower));
 		bFPS->setText(pt.strVal(VarFPS));
 		bCyclesMB->setText(pt.strVal(VarCyclesMB));
+		bEnergyMB->setText(pt.strVal(VarEnergyMB));
 		bFPSParallel->setText(pt.strVal(VarFPSParallel));
 		bCyclesMBParallel->setText(pt.strVal(VarCyclesMBParallel));
+		bEnergyMBParallel->setText(pt.strVal(VarEnergyMBParallel));
 	}
 }
 
@@ -380,6 +394,7 @@ CT::PointItem* CT::CycleTimer::getConf()
 	pt.full = cFull->value();
 	pt.quarter = cQuarter->value();
 	pt.partitions = cPartitions->itemData(cPartitions->currentIndex()).toInt();
+	pt.frequency = cFrequency->value();
 	pt.mvCost = cMVCost->isChecked();
 	pt.mvCand = cMVCand->isChecked();
 	pt.lut = 743 + 1555 * pt.full;
@@ -623,6 +638,7 @@ void CT::CycleTimer::pointRemoved(PointItem* src)
 		bFull->setText(QString());
 		bQuarter->setText(QString());
 		bPartitions->setText(QString());
+		bFrequency->setText(QString());
 		bMVCost->setText(QString());
 		bMVCand->setText(QString());
 		bLUT->setText(QString());
@@ -631,11 +647,13 @@ void CT::CycleTimer::pointRemoved(PointItem* src)
 		bRefFrames->setText(QString());
 		bBitRate->setText(QString());
 		bPSNR->setText(QString());
-		bEnergyMB->setText(QString());
+		bPower->setText(QString());
 		bFPS->setText(QString());
 		bCyclesMB->setText(QString());
+		bEnergyMB->setText(QString());
 		bFPSParallel->setText(QString());
 		bCyclesMBParallel->setText(QString());
+		bEnergyMBParallel->setText(QString());
 	}
 
 	// if point was running, remove it from run queue

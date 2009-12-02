@@ -239,8 +239,8 @@
 
   #define ZERO    new NumClass(0)
   #define ASSEMBLY_OUTPUT  "assembly.asm"
-  #define PATTERNS_OUTPUT  "patterns.bin"
-  #define PROGRAM_OUTPUT   "program.bin"
+  #define PATTERNS_OUTPUT  "patterns.mif"
+  #define PROGRAM_OUTPUT   "program.mif"
   #define ESTIMO_OUTPUT    "estimo.output"
 
 

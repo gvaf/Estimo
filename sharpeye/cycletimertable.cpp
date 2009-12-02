@@ -239,6 +239,7 @@ void CT::Table::exportTable()
 		VarLabel,
 		VarProgMem, VarPointMem,
 		VarFull, VarQuarter, VarPartitions,
+		VarFrequency,
 		VarMVCost, VarMVCand,
 		VarLUT,
 		VarVideoFile,
@@ -250,7 +251,9 @@ void CT::Table::exportTable()
 		VarBitRate, VarPSNR,
 		VarEnergy,
 		VarCycles, VarCyclesParallel,
-		VarEnergyMB,
+		VarPower,
+		VarEnergyParallel,
+		VarEnergyMB, VarEnergyMBParallel,
 		VarCyclesMB, VarCyclesMBParallel,
 		VarFPS, VarFPSParallel
 	};

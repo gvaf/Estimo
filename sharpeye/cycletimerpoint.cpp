@@ -89,6 +89,10 @@ CT::varLabel(CT::Variable var, bool units)
 		return QObject::tr("Sub-pel execution units");
 	case VarPartitions:
 		return QObject::tr("Smallest partition size");
+	case VarFrequency:
+		if (units)
+			return QObject::tr("Core frequency (MHz)");
+		return QObject::tr("Core frequency");
 	case VarMVCost:
 		return QObject::tr("MV cost optimization");
 	case VarMVCand:
@@ -125,10 +129,22 @@ CT::varLabel(CT::Variable var, bool units)
 		return QObject::tr("Cycles");
 	case VarCyclesParallel:
 		return QObject::tr("Cycles (parallel)");
+	case VarPower:
+		if (units)
+			return QObject::tr("Power (mW)");
+		return QObject::tr("Power");
+	case VarEnergyParallel:
+		if (units)
+			return QObject::tr("Energy (parallel) (nJ)");
+		return QObject::tr("Energy (parallel)");
 	case VarEnergyMB:
 		if (units)
 			return QObject::tr("Energy / macroblock (nJ)");
 		return QObject::tr("Energy / macroblock");
+	case VarEnergyMBParallel:
+		if (units)
+			return QObject::tr("Energy / macroblock (parallel) (nJ)");
+		return QObject::tr("Energy / macroblock (parallel)");
 	case VarCyclesMB:
 		return QObject::tr("Cycles / macroblock");
 	case VarCyclesMBParallel:
@@ -151,6 +167,7 @@ CT::varMinStep(CT::Variable var)
 	case VarFull:
 	case VarQuarter:
 	case VarPartitions:
+	case VarFrequency:
 	case VarMVCost:
 	case VarMVCand:
 	case VarResX:
@@ -170,7 +187,10 @@ CT::varMinStep(CT::Variable var)
 	case VarBitRate:
 	case VarPSNR:
 	case VarEnergy:
+	case VarPower:
+	case VarEnergyParallel:
 	case VarEnergyMB:
+	case VarEnergyMBParallel:
 	case VarFPS:
 	case VarFPSParallel:
 		return 0.01;
@@ -193,6 +213,8 @@ int CT::PointConf::intVal(Variable var) const
 		return quarter;
 	case VarPartitions:
 		return partitions;
+	case VarFrequency:
+		return frequency;
 	case VarMVCost:
 		return int(mvCost);
 	case VarMVCand:
@@ -220,6 +242,7 @@ qreal CT::PointConf::realVal(Variable var) const
 	case VarFull:
 	case VarQuarter:
 	case VarPartitions:
+	case VarFrequency:
 	case VarMVCost:
 	case VarMVCand:
 	case VarLUT:
@@ -240,6 +263,7 @@ QString CT::PointConf::strVal(Variable var) const
 	switch (var) {
 	case VarFull:
 	case VarQuarter:
+	case VarFrequency:
 	case VarLUT:
 	case VarResX:
 	case VarResY:
@@ -282,6 +306,7 @@ int CT::PointData::intVal(Variable var) const
 	case VarFull:
 	case VarQuarter:
 	case VarPartitions:
+	case VarFrequency:
 	case VarMVCost:
 	case VarMVCand:
 	case VarLUT:
@@ -303,6 +328,7 @@ qreal CT::PointData::realVal(Variable var) const
 	case VarFull:
 	case VarQuarter:
 	case VarPartitions:
+	case VarFrequency:
 	case VarMVCost:
 	case VarMVCand:
 	case VarLUT:
@@ -318,6 +344,10 @@ qreal CT::PointData::realVal(Variable var) const
 		return psnr;
 	case VarEnergy:
 		return energy;
+	case VarPower:
+		return (24 + 25 * (full + quarter)) * frequency / 50.0;
+	case VarEnergyParallel:
+		return energy * cycles / cyclesParallel;
 	case VarCycles:
 		return cycles;
 	case VarCyclesParallel:
@@ -325,6 +355,9 @@ qreal CT::PointData::realVal(Variable var) const
 	case VarEnergyMB:
 		mb_per_frame = ((resX + 15) / 16) * ((resY + 15) / 16);
 		return energy / mb_per_frame / frames;
+	case VarEnergyMBParallel:
+		mb_per_frame = ((resX + 15) / 16) * ((resY + 15) / 16);
+		return energy * cycles / cyclesParallel / mb_per_frame / frames;
 	case VarCyclesMB:
 		mb_per_frame = ((resX + 15) / 16) * ((resY + 15) / 16);
 		return qreal(cycles) / mb_per_frame / frames;
@@ -332,9 +365,9 @@ qreal CT::PointData::realVal(Variable var) const
 		mb_per_frame = ((resX + 15) / 16) * ((resY + 15) / 16);
 		return qreal(cyclesParallel) / mb_per_frame / frames;
 	case VarFPS:
-		return cycles <= 0 ? 0 : 2e8 * frames / cycles; // 200 MHz
+		return cycles <= 0 ? 0 : frequency * 1e6 * frames / cycles;
 	case VarFPSParallel:
-		return cyclesParallel <= 0 ? 0 : 2e8 * frames / cyclesParallel;
+		return cyclesParallel <= 0 ? 0 : frequency * 1e6 * frames / cyclesParallel;
 	default:
 		return 0;
 	};
@@ -350,6 +383,7 @@ QString CT::PointData::strVal(Variable var) const
 	case VarFull:
 	case VarQuarter:
 	case VarPartitions:
+	case VarFrequency:
 	case VarMVCost:
 	case VarMVCand:
 	case VarLUT:
@@ -363,7 +397,10 @@ QString CT::PointData::strVal(Variable var) const
 	case VarBitRate:
 	case VarPSNR:
 	case VarEnergy:
+	case VarPower:
+	case VarEnergyParallel:
 	case VarEnergyMB:
+	case VarEnergyMBParallel:
 	case VarCyclesMB:
 	case VarCyclesMBParallel:
 	case VarFPS:
@@ -394,6 +431,7 @@ CT::PointItem::PointItem(const PointConf& conf)
 	p.full = conf.full;
 	p.quarter = conf.quarter;
 	p.partitions = conf.partitions;
+	p.frequency = conf.frequency;
 	p.mvCost = conf.mvCost;
 	p.mvCand = conf.mvCand;
 	p.lut = conf.lut;
@@ -644,6 +682,8 @@ CT::DetailsDialog::DetailsDialog(QWidget* parent, PointItem* point)
 				pt.strVal(VarQuarter));
 	bPartitions = addLabelPair(layout, y++, x, tr("Smallest partition:"),
 				   pt.strVal(VarPartitions));
+	bFrequency = addLabelPair(layout, y++, x, tr("Core frequency (MHz):"),
+	                          pt.strVal(VarFrequency));
 	bMVCost = addLabelPair(layout, y++, x, tr("MV cost optimization:"),
 			       pt.strVal(VarMVCost));
 	bMVCand = addLabelPair(layout, y++, x, tr("MV candidates:"),
@@ -668,17 +708,21 @@ CT::DetailsDialog::DetailsDialog(QWidget* parent, PointItem* point)
 				pt.strVal(VarBitRate));
 	bPSNR = addLabelPair(layout, y++, x, tr("PSNR (dB):"),
 			     pt.strVal(VarPSNR));
-	bEnergyMB = addLabelPair(layout, y++, x, tr("Energy / macroblock (nJ):"),
-				 pt.strVal(VarEnergyMB));
+	bPower = addLabelPair(layout, y++, x, tr("Power (mW):"),
+	                      pt.strVal(VarPower));
 	bFPS = addLabelPair(layout, y++, x, tr("FPS:"),
 			    pt.strVal(VarFPS));
 	bCyclesMB = addLabelPair(layout, y++, x, tr("Cycles / macroblock:"),
 				 pt.strVal(VarCyclesMB));
+	bEnergyMB = addLabelPair(layout, y++, x, tr("Energy / macroblock (nJ):"),
+				 pt.strVal(VarEnergyMB));
 	addLabelDesc(layout, y++, x, tr("Full- and sub-pel in parallel:"));
 	bFPSParallel = addLabelPair(layout, y++, x, tr("FPS:"),
 				    pt.strVal(VarFPSParallel));
 	bCyclesMBParallel = addLabelPair(layout, y++, x, tr("Cycles / macroblock:"),
 					 pt.strVal(VarCyclesMBParallel));
+	bEnergyMBParallel = addLabelPair(layout, y++, x, tr("Energy / macroblock (nJ):"),
+	                                 pt.strVal(VarEnergyMBParallel));
 
 	connect(point, SIGNAL(removed(PointItem*)), this, SLOT(close()));
 	connect(point, SIGNAL(changed(PointItem*)),
@@ -697,6 +741,7 @@ void CT::DetailsDialog::changed(CT::PointItem* point)
 	bFull->setText(pt.strVal(VarFull));
 	bQuarter->setText(pt.strVal(VarQuarter));
 	bPartitions->setText(pt.strVal(VarPartitions));
+	bFrequency->setText(pt.strVal(VarFrequency));
 	bMVCost->setText(pt.strVal(VarMVCost));
 	bMVCand->setText(pt.strVal(VarMVCand));
 	bLUT->setText(pt.strVal(VarLUT));
@@ -707,10 +752,12 @@ void CT::DetailsDialog::changed(CT::PointItem* point)
 	bRefFrames->setText(pt.strVal(VarRefFrames));
 	bBitRate->setText(pt.strVal(VarBitRate));
 	bPSNR->setText(pt.strVal(VarPSNR));
-	bEnergyMB->setText(pt.strVal(VarEnergyMB));
+	bPointMem->setText(pt.strVal(VarPower));
 	bFPS->setText(pt.strVal(VarFPS));
 	bCyclesMB->setText(pt.strVal(VarCyclesMB));
+	bEnergyMB->setText(pt.strVal(VarEnergyMB));
 	bFPSParallel->setText(pt.strVal(VarFPSParallel));
 	bCyclesMBParallel->setText(pt.strVal(VarCyclesMBParallel));
+	bEnergyMBParallel->setText(pt.strVal(VarEnergyMBParallel));
 	setWindowTitle(pt.strVal(VarLabel));
 }

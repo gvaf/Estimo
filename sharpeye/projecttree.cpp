@@ -42,10 +42,10 @@ ProjectTree::ProjectTree()
   QTreeWidgetItem *asmdoc = new QTreeWidgetItem(output, QStringList(QString("Assembly.asm")));
   asmdoc->setIcon(0, QIcon(":/SharpEye/images/document.png"));
 
-  QTreeWidgetItem *patdoc = new QTreeWidgetItem(output, QStringList(QString("patterns.bin")));
+  QTreeWidgetItem *patdoc = new QTreeWidgetItem(output, QStringList(QString("patterns.mif")));
   patdoc->setIcon(0, QIcon(":/SharpEye/images/document.png"));
 
-  QTreeWidgetItem *prgdoc = new QTreeWidgetItem(output, QStringList(QString("program.bin")));
+  QTreeWidgetItem *prgdoc = new QTreeWidgetItem(output, QStringList(QString("program.mif")));
   prgdoc->setIcon(0, QIcon(":/SharpEye/images/document.png"));
 
   QList<QTreeWidgetItem *> fileitems;

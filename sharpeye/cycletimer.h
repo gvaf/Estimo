@@ -71,6 +71,7 @@ private:
 	QSpinBox* cFull;
 	QSpinBox* cQuarter;
 	QComboBox* cPartitions;
+	QSpinBox* cFrequency;
 	QCheckBox* cMVCost;
 	QCheckBox* cMVCand;
 
@@ -86,6 +87,7 @@ private:
 	QLabel* bFull;
 	QLabel* bQuarter;
 	QLabel* bPartitions;
+	QLabel* bFrequency;
 	QLabel* bMVCost;
 	QLabel* bMVCand;
 	QLabel* bLUT;
@@ -94,11 +96,13 @@ private:
 	QLabel* bRefFrames;
 	QLabel* bBitRate;
 	QLabel* bPSNR;
-	QLabel* bEnergyMB;
+	QLabel* bPower;
 	QLabel* bFPS;
 	QLabel* bCyclesMB;
+	QLabel* bEnergyMB;
 	QLabel* bFPSParallel;
 	QLabel* bCyclesMBParallel;
+	QLabel* bEnergyMBParallel;
 
 	QLabel* bQueue;
 

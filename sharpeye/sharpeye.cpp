@@ -21,6 +21,8 @@
  **************************************************************************
  */
 
+#define SHARP_VERSION "v2009.2"
+
 #include <QtGui>
 #include "sharpeye.h"
 #include "sourcebrowser.h"
@@ -44,7 +46,7 @@ SharpEye::SharpEye()
   sourcetab->setMinimumSize(400, 205);
   //setWindowTitle(tr("%1[*] - %2").arg("test.est").arg(tr("SharpEye Studio")));
 
-  setWindowTitle(tr("SharpEye Studio 2009 - A Complete Framework for the Development of Motion Estimation Processors and Algorithms"));
+  setWindowTitle(QString("SharpEye Studio %1 - A Complete Framework for the Development of Motion Estimation Processors and Algorithms").arg(SHARP_VERSION));
 
   createActions();
   createMenus();
@@ -429,9 +431,9 @@ void SharpEye::run()
 
 	 QString output;
 
-	 output  = "SharpEye Studio 2009 IDE\n";
+	 output  = "SharpEye Studio " +  QString(SHARP_VERSION) + " IDE\n";
 	 output += "University of Bristol. ";
-     output += "Copyright (C) 2009 George Vafeiadis\n";
+     output += "Copyright (C) 2009 Jose Nunez-Yanez, Trevor Spiteri, George Vafiadis\n";
      output += QString("Compiling '%1'...\n\n").arg(fname);
      output += QString("Estimo Interpreter is running...\n\n").arg(fname);
 
@@ -468,9 +470,6 @@ void SharpEye::compilerFinished()
 
      if(res.contains("done", Qt::CaseInsensitive) )
      {
-     //  output += "Creating assembly.asm...\n";
-     //  output += "Creating patterns.bin...\n";
-     //  output += "Creating program.bin...\n\n";
 		 allOK = true;
 	 }
      
@@ -597,8 +596,8 @@ void SharpEye::killEstimo()
 void SharpEye::clean()
 {
  QFile as("estimo.output/assembly.asm");
- QFile pat("estimo.output/patterns.bin");
- QFile prg("estimo.output/program.bin");
+ QFile pat("estimo.output/patterns.mif"); 
+ QFile prg("estimo.output/program.mif");
 
  status->setText("Clean started...\n" \
 	            "Deleting intermediate and output files.\n" \

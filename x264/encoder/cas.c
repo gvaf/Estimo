@@ -20,7 +20,7 @@ static inline int x264_tapfilter1( const uint8_t *pix )
 }
 
 static void cas_execute(cas_t *cas);
-static void full_pel_first(cas_t *cas, uint16_t pt);
+static void full_pel_pred(cas_t *cas);
 static void full_pel(cas_t *cas, uint8_t point_n, uint8_t point_addr);
 static void frac_pel(cas_t *cas, uint8_t point_n, uint8_t point_addr);
 static int points_include(int *pts, int off, int n, int cap, int x, int y);
@@ -81,7 +81,7 @@ static int qcycles_iter[] = {
         /* memory read/write and vector motion vector decision */       \
         for (y = 0; y < ly; ++y) {                                      \
             for (x = 0; x < lx; ++x)                                    \
-                sum += abs(pix1[x] - ((pixr1[x] + pixr2[x]) >> 1));     \
+                sum += abs(pix1[x] - ((pixr1[x] + pixr2[x] + 1) >> 1)); \
             pix1 += stride1;                                            \
             pixr1 += strider1;                                          \
             pixr2 += strider2;                                          \
@@ -207,10 +207,24 @@ static int cas_execute_quarter(cas_t *cas);
 static int inst_quarter_pel(cas_t *cas, uint32_t inst);
 
 static void
+add_energy(cas_t *cas, int cycles)
+{
+    /* power = (24mW + units * 25mW) * frequency / 50MHz
+     *
+     * energy = power * time
+     *        = power * cycles / frequency
+     *        = (24mW + units * 25mW) * cycles / 50MHz
+     *        = (480pJ + units * 500pJ) * cycles
+     */
+    int power_freq = 480 + (cas->feu + cas->qeu) * 500;
+    cas->energy_pJ += power_freq * cycles;
+}
+
+static void
 cas_execute(cas_t *cas)
 {
     uint32_t inst;
-    int fcycles, qcycles;
+    int fcycles, qcycles, cycles;
     uint8_t op;
 
     fcycles = 0;
@@ -223,7 +237,9 @@ cas_execute(cas_t *cas)
         qcycles = cas_execute_quarter(cas);
     cas->qcycles += qcycles;
 
-    cas->cycles += fcycles > qcycles ? fcycles : qcycles;
+    cycles = fcycles > qcycles ? fcycles : qcycles;
+    cas->cycles += cycles;
+    add_energy(cas, cycles);
 
     if (fcycles > 0 && cas->qidle)
         cas->could_save_cycles += fcycles > cas->last_qcycles ? cas->last_qcycles : fcycles;
@@ -247,7 +263,9 @@ cas_execute(cas_t *cas)
         inst = cas->prog_mem[cas->fcounter];
         op = (inst & 0xf0000) >> 16;
         if (cas->qeu > 0 && op == 1) { /* frac pel */
-            cas->cycles += 159; // 309;
+            cycles = 159; // 309;
+            cas->cycles += cycles;
+            add_energy(cas, cycles);
             interp_ori(cas);
             interp_hor(cas);
         }
@@ -376,17 +394,6 @@ cas_execute_full(cas_t *cas)
     return cycles;
 }
 
-static void
-add_energy(cas_t *cas, int cycles, int full)
-{
-    int power;
-    if (full)
-        power = 1763 + 675 * cas->feu;
-    else
-        power = 440 * cas->qeu;
-    cas->energy_pJ += cycles * power / 200; // nJ = mW / 200e6 Hz * (1e6 nJ / mJ)
-}
-
 static int
 inst_full_pel(cas_t *cas, uint32_t inst)
 {
@@ -395,43 +402,41 @@ inst_full_pel(cas_t *cas, uint32_t inst)
     int i, opt_points, ox, oy;
     int cycles = 0;
 
-    point_addr = inst & 0xff;
-    if (cas->ffirst && cas->i_mvc > 0) {
-        cas->ffirst = 0;
+    if (cas->ffirst) {
         opt_points = cas->i_mvc + 1;
         points_on_eu = (opt_points + cas->feu - 1) / cas->feu;
         cycles += cycles_iter[cas->f_pixel] * points_on_eu + 11;
-        full_pel_first(cas, cas->point_mem[point_addr]);
-    } else {
-        point_n = (inst & 0xff00) >> 8;
-        opt_points = point_n;
-        ox = cas->fx;
-        oy = cas->fy;
-        if (cas->foptl) {
-            for (i = 0; i < point_n; ++i) {
-                if (points_include(cas->fpts_done, cas->fpts_done_off, cas->fpts_done_n, cas->fpts_done_cap,
-                                   ox + (int8_t) (cas->point_mem[point_addr + i] >> 8),
-                                   oy + (int8_t) (cas->point_mem[point_addr + i]))) {
-                    --opt_points;
-                }
-            }
-        }
-        points_on_eu = (opt_points + cas->feu - 1) / cas->feu;
-        cycles += cycles_iter[cas->f_pixel] * points_on_eu + 11;
-        full_pel(cas, point_n, point_addr);
-        if (cas->foptl) {
-            if (cas->foptl == 1)
-                cas->fpts_done_off = cas->fpts_done_n = 0;
-            for (i = 0; i < point_n; ++i) {
-                points_add(cas->fpts_done, &cas->fpts_done_off, &cas->fpts_done_n, cas->fpts_done_cap,
-                           ox + (int8_t) (cas->point_mem[point_addr + i] >> 8),
-                           oy + (int8_t) (cas->point_mem[point_addr + i]));
-            }
-            points_add(cas->fpts_done, &cas->fpts_done_off, &cas->fpts_done_n, cas->fpts_done_cap, ox, oy);
-        }
+        full_pel_pred(cas);
     }
 
-    add_energy(cas, cycles, 1);
+    point_addr = inst & 0xff;
+    point_n = (inst & 0xff00) >> 8;
+    opt_points = point_n;
+    ox = cas->fx;
+    oy = cas->fy;
+    if (cas->foptl) {
+        for (i = 0; i < point_n; ++i) {
+            if (points_include(cas->fpts_done, cas->fpts_done_off, cas->fpts_done_n, cas->fpts_done_cap,
+	                       ox + (int8_t) (cas->point_mem[point_addr + i] >> 8),
+	                       oy + (int8_t) (cas->point_mem[point_addr + i]))) {
+                --opt_points;
+            }
+        }
+    }
+    points_on_eu = (opt_points + cas->feu - 1) / cas->feu;
+    cycles += cycles_iter[cas->f_pixel] * points_on_eu + 11;
+    full_pel(cas, point_n, point_addr);
+    if (cas->foptl) {
+        if (cas->foptl == 1)
+            cas->fpts_done_off = cas->fpts_done_n = 0;
+        for (i = 0; i < point_n; ++i) {
+            points_add(cas->fpts_done, &cas->fpts_done_off, &cas->fpts_done_n, cas->fpts_done_cap,
+	               ox + (int8_t) (cas->point_mem[point_addr + i] >> 8),
+	               oy + (int8_t) (cas->point_mem[point_addr + i]));
+        }
+        points_add(cas->fpts_done, &cas->fpts_done_off, &cas->fpts_done_n, cas->fpts_done_cap, ox, oy);
+    }
+
     return cycles;
 }
 
@@ -558,30 +563,29 @@ inst_quarter_pel(cas_t *cas, uint32_t inst)
         points_add(cas->qpts_done, &cas->qpts_done_off, &cas->qpts_done_n, cas->qpts_done_cap, oqx, oqy);
     }
 
-    add_energy(cas, cycles, 0);
     return cycles;
 }
 
 static void
-full_pel_first(cas_t *cas, uint16_t pt)
+full_pel_pred(cas_t *cas)
 {
     int i;
-    int ptx = (int8_t) (pt >> 8);
-    int pty = (int8_t) (pt & 0xff);
     int x_min = cas->x_min, x_max = cas->x_max, y_min = cas->y_min, y_max = cas->y_max;
 
     for (i = -1; i < cas->i_mvc; ++i) {
-        int x = ptx, y = pty, cost;
+        int x, y, cost;
         x264_pixel_cmp_t sad = cas->f_pixf->sad[cas->f_pixel];
         if (i == -1) {
             /* this is the first iteration, so fx and fy contain predicted vector */
-            x += cas->fx;
-            y += cas->fy;
+            x = cas->fx;
+            y = cas->fy;
         } else {
-            x += (cas->mvc[i][0] + 2) >> 2;
-            y += (cas->mvc[i][1] + 2) >> 2;
+            x = (cas->mvc[i][0] + 2) >> 2;
+            y = (cas->mvc[i][1] + 2) >> 2;
         }
         if (x < x_min || x > x_max || y < y_min || y > y_max)
+            continue;
+        if (i >= 0 && x == cas->fx && y == cas->fy)
             continue;
 
 	cost = sad((uint8_t *)cas->fcur, cas->fcur_stride,
@@ -604,6 +608,12 @@ full_pel(cas_t *cas, uint8_t point_n, uint8_t point_addr)
     int oy = cas->fy;
     int x_min = cas->x_min, x_max = cas->x_max, y_min = cas->y_min, y_max = cas->y_max;
 
+    if (cas->ffirst) {
+        cas->ffirst = 0;
+        ox = 0;
+        oy = 0;
+    }
+        
     cas->fwinner = 0;
     for (i = 0; i < point_n; ++i) {
         int x = ox + (int8_t) (cas->point_mem[point_addr + i] >> 8);
@@ -663,36 +673,35 @@ frac_pel(cas_t *cas, uint8_t point_n, uint8_t point_addr)
 
         switch (((qx & 3) << 2) | (qy & 3)) {
 
-#define CASE_XY(fracx, fracy, ref1, ref2, r2x, r2y)             \
+#define CASE_XY(fracx, fracy, ref1, r1x, r1y, ref2, r2x, r2y)   \
             case ((fracx << 2) | fracy): {                      \
                 uint8_t *o1 = ref1 ## _o, *o2 = ref2 ## _o;     \
                 int w1 = ref1 ## _w, w2 = ref2 ## _w;           \
+		int of1 = x_int + r1x + (y_int + r1y) * w1;     \
+		int of2 = x_int + r2x + (y_int + r2y) * w2;     \
                 cost = q(cas->qcur, cas->qcur_stride,           \
-                         o1 + x_int + y_int * w1,               \
-                         o2 + x_int + r2x + (y_int + r2y) * w2, \
-                         w1, w2);                               \
+		         o1 + of1, o2 + of2, w1, w2);           \
             } break
 
-            CASE_XY(0, 0, ori, ori, 0, 0);
-            CASE_XY(0, 1, ori, ver, 0, 0);
-            CASE_XY(1, 0, ori, hor, 0, 0);
-            CASE_XY(1, 1, ori, dia, 0, 0);
-
-            CASE_XY(0, 2, ver, ver, 0, 0);
-            CASE_XY(0, 3, ver, ori, 0, 1);
-            CASE_XY(1, 2, ver, dia, 0, 0);
-            CASE_XY(1, 3, ver, hor, 0, 1);
-
-            CASE_XY(2, 0, hor, hor, 0, 0);
-            CASE_XY(2, 1, hor, dia, 0, 0);
-            CASE_XY(3, 0, hor, ori, 1, 0);
-            /* CASE_XY(3, 1, hor, ver, 1, 0); */
-            CASE_XY(3, 1, dia, ori, 1, 0);
-
-            CASE_XY(2, 2, dia, dia, 0, 0);
-            CASE_XY(2, 3, dia, hor, 0, 1);
-            CASE_XY(3, 2, dia, ver, 1, 0);
-            CASE_XY(3, 3, dia, ori, 1, 1);
+            CASE_XY(0, 0, ori, 0, 0, ori, 0, 0);
+            CASE_XY(1, 0, hor, 0, 0, ori, 0, 0);
+            CASE_XY(2, 0, hor, 0, 0, hor, 0, 0);
+            CASE_XY(3, 0, hor, 0, 0, ori, 1, 0);
+            CASE_XY(0, 1, ori, 0, 0, ver, 0, 0);
+            CASE_XY(1, 1, hor, 0, 0, ver, 0, 0);
+            CASE_XY(2, 1, hor, 0, 0, dia, 0, 0);
+            CASE_XY(3, 1, hor, 0, 0, ver, 1, 0);
+            CASE_XY(0, 2, ver, 0, 0, ver, 0, 0);
+            CASE_XY(1, 2, dia, 0, 0, ver, 0, 0);
+            CASE_XY(2, 2, dia, 0, 0, dia, 0, 0);
+            CASE_XY(3, 2, dia, 0, 0, ver, 1, 0);
+            CASE_XY(0, 3, ori, 0, 1, ver, 0, 0);
+            CASE_XY(1, 3, hor, 0, 1, ver, 0, 0);
+            CASE_XY(2, 3, hor, 0, 1, dia, 0, 0);
+            CASE_XY(3, 3, hor, 0, 1, ver, 1, 0);
+            /* CASE_XY(1, 1, ori, 0, 0, dia, 0, 0); */
+            /* CASE_XY(3, 1, dia, 0, 0, ori, 1, 0); */
+            /* CASE_XY(3, 3, dia, 0, 0, ori, 1, 1); */
 
 #undef COST_MV_QP
 
@@ -834,9 +843,11 @@ interp_ver(cas_t *cas)
     }
 }
 
+#define USE_ROUNDED_HOR_FOR_DIA
 static void
 interp_dia(cas_t *cas)
 {
+#ifdef USE_ROUNDED_HOR_FOR_DIA
     const int src_stride = mb_w[cas->f_pixel] + HOR_AX;
     const uint8_t *src = cas->hor + 2 * src_stride;
 
@@ -851,4 +862,38 @@ interp_dia(cas_t *cas)
         dst += w;
         src += src_stride;
     }
+#else
+    #error Should not get here
+    const int src_stride = mb_w[cas->f_pixel] + ORI_AX;
+    const uint8_t *src = cas->ori + 2 * src_stride + 2;
+
+    const int w = mb_w[cas->f_pixel] + DIA_AX;
+    const int h = mb_h[cas->f_pixel] + DIA_AY;
+    uint8_t *dst = cas->dia;
+
+    int x, y;
+    for (x = 0; x < w; x++) {
+        const uint8_t *hsrc = src + x;
+        uint8_t *hdst = dst + x;
+        int tap[6];
+
+        tap[0] = x264_tapfilter1(hsrc - 2 * src_stride);
+        tap[1] = x264_tapfilter1(hsrc - 1 * src_stride);
+        tap[2] = x264_tapfilter1(hsrc + 0 * src_stride);
+        tap[3] = x264_tapfilter1(hsrc + 1 * src_stride);
+        tap[4] = x264_tapfilter1(hsrc + 2 * src_stride);
+        for (y = 0; y < h; y++) {
+            tap[5] = x264_tapfilter1(hsrc + 3 * src_stride);
+            *hdst = x264_mc_clip1((tap[0] - 5*tap[1] + 20*tap[2] + 20*tap[3] - 5*tap[4] + tap[5] + 512) >> 10);
+
+            hsrc += src_stride;
+            hdst += w;
+            tap[0] = tap[1];
+            tap[1] = tap[2];
+            tap[2] = tap[3];
+            tap[3] = tap[4];
+            tap[4] = tap[5];
+        }
+    }
+#endif
 }
