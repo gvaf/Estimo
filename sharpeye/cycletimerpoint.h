@@ -42,6 +42,7 @@ enum Variable {
 	VarPointMem,
 	VarFull,
 	VarQuarter,
+	VarRefFrames,
 	VarPartitions,
 	VarFrequency,
 	VarMVCost,
@@ -52,7 +53,7 @@ enum Variable {
 	VarResY,
 	VarFrames,
 	VarQP,
-	VarRefFrames,
+	VarOutputFile,
 
 	VarRes,
 
@@ -82,6 +83,7 @@ struct PointConf
 	QString pointMem;
 	int full;
 	int quarter;
+	int refFrames;
 	int frequency;
 	int partitions;
 	bool mvCost;
@@ -92,7 +94,7 @@ struct PointConf
 	int resY;
 	int frames;
 	int qp;
-	int refFrames;
+	QString outputFile;
 
 	int intVal(Variable var) const;
 	qreal realVal(Variable var) const;
@@ -166,6 +168,7 @@ private:
 	QLabel* bPointMem;
 	QLabel* bFull;
 	QLabel* bQuarter;
+	QLabel* bRefFrames;
 	QLabel* bPartitions;
 	QLabel* bFrequency;
 	QLabel* bMVCost;
@@ -175,7 +178,7 @@ private:
 	QLabel* bRes;
 	QLabel* bFrames;
 	QLabel* bQP;
-	QLabel* bRefFrames;
+	QLabel* bOutputFile;
 	QLabel* bBitRate;
 	QLabel* bPSNR;
 	QLabel* bPower;

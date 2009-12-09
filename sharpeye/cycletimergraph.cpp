@@ -738,7 +738,7 @@ CT::Graph::Graph(QWidget* parent)
 	label->setBuddy(yCombo);
 	optionsLayout->addWidget(label, y, 3);
 	optionsLayout->addWidget(yCombo, y++, 4);
-	label = new QLabel(tr("Ar&ea:"));
+	label = new QLabel(tr("&Area:"));
 	label->setBuddy(zCombo);
 	optionsLayout->addWidget(label, y, 3);
 	optionsLayout->addWidget(zCombo, y++, 4);

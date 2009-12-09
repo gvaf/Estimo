@@ -70,6 +70,7 @@ private:
 	QPushButton* browsePointMem;
 	QSpinBox* cFull;
 	QSpinBox* cQuarter;
+	QSpinBox* cRefFrames;
 	QComboBox* cPartitions;
 	QSpinBox* cFrequency;
 	QCheckBox* cMVCost;
@@ -81,7 +82,9 @@ private:
 	QSpinBox* cResY;
 	QSpinBox* cFrames;
 	QSpinBox* cQP;
-	QSpinBox* cRefFrames;
+	QCheckBox* cOutput;
+	QComboBox* cOutputFile;
+	QPushButton* browseOutputFile;
 
 	QLabel* bLabel;
 	QLabel* bFull;
@@ -120,6 +123,7 @@ private slots:
 	void browseProgram();
 	void browsePoints();
 	void browseVideo();
+	void browseOutput();
 	void run();
 	void stop();
 	void plot();

@@ -109,6 +109,8 @@ CT::varLabel(CT::Variable var, bool units)
 		return QObject::tr("Number of frames");
 	case VarQP:
 		return QObject::tr("QP");
+	case VarOutputFile:
+		return QObject::tr("Output file");
 	case VarRefFrames:
 		return QObject::tr("Reference frames");
 	case VarRes:
@@ -279,6 +281,8 @@ QString CT::PointConf::strVal(Variable var) const
 		return pointMem;
 	case VarVideoFile:
 		return videoFile;
+	case VarOutputFile:
+		return outputFile;
 	case VarPartitions:
 		{
 			QString s = QString::number(partitions);
@@ -380,6 +384,7 @@ QString CT::PointData::strVal(Variable var) const
 	case VarProgMem:
 	case VarPointMem:
 	case VarVideoFile:
+	case VarOutputFile:
 	case VarFull:
 	case VarQuarter:
 	case VarPartitions:
@@ -428,6 +433,7 @@ CT::PointItem::PointItem(const PointConf& conf)
 	p.progMem = conf.progMem;
 	p.pointMem = conf.pointMem;
 	p.videoFile = conf.videoFile;
+	p.outputFile = conf.outputFile;
 	p.full = conf.full;
 	p.quarter = conf.quarter;
 	p.partitions = conf.partitions;
@@ -575,8 +581,11 @@ void CT::PointItem::x264Run()
 	args << "--casprog" << p.progMem
 	     << "--caspoint" << p.pointMem
 	     << "--qp" << QString::number(p.qp)
-	     << "--ref" << QString::number(p.refFrames)
-	     << "--output" << "/dev/null";
+	     << "--ref" << QString::number(p.refFrames);
+	if (p.outputFile.isEmpty())
+		args << "--output" << "/dev/null";
+	else
+		args << "--output" << p.outputFile;
 	if (p.frames)
 		args << "--frames" << QString::number(p.frames);
 	QString resText = (QString::number(p.resX)
@@ -680,6 +689,8 @@ CT::DetailsDialog::DetailsDialog(QWidget* parent, PointItem* point)
 			     pt.strVal(VarFull));
 	bQuarter = addLabelPair(layout, y++, x, tr("Sub-pel units:"),
 				pt.strVal(VarQuarter));
+	bRefFrames = addLabelPair(layout, y++, x, tr("Reference frames:"),
+				  pt.strVal(VarRefFrames));
 	bPartitions = addLabelPair(layout, y++, x, tr("Smallest partition:"),
 				   pt.strVal(VarPartitions));
 	bFrequency = addLabelPair(layout, y++, x, tr("Core frequency (MHz):"),
@@ -699,8 +710,8 @@ CT::DetailsDialog::DetailsDialog(QWidget* parent, PointItem* point)
 			       pt.strVal(VarFrames));
 	bQP = addLabelPair(layout, y++, x, tr("QP (0 is lossless):"),
 			   pt.strVal(VarQP));
-	bRefFrames = addLabelPair(layout, y++, x, tr("Reference frames:"),
-				  pt.strVal(VarRefFrames));
+	bOutputFile = addLabelPair(layout, y++, x, tr("Output file:"),
+	                           pt.strVal(VarOutputFile));
 	y = 0;
 	x = 3;
 	addLabelDesc(layout, y++, x, tr("Results:"));
@@ -749,6 +760,7 @@ void CT::DetailsDialog::changed(CT::PointItem* point)
 	bRes->setText(pt.strVal(VarRes));
 	bFrames->setText(pt.strVal(VarFrames));
 	bQP->setText(pt.strVal(VarQP));
+	bOutputFile->setText(pt.strVal(VarOutputFile));
 	bRefFrames->setText(pt.strVal(VarRefFrames));
 	bBitRate->setText(pt.strVal(VarBitRate));
 	bPSNR->setText(pt.strVal(VarPSNR));

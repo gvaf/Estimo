@@ -177,7 +177,7 @@ CT::CycleTimer::CycleTimer(QWidget* parent)
 	lProgMem->setBuddy(cProgMem);
 	browseProgMem = createButton(tr("Browse..."), this, SLOT(browseProgram()));
 
-	QLabel* lPointMem = new QLabel(tr("P&oints memory:"));
+	QLabel* lPointMem = new QLabel(tr("Poi&nts memory:"));
 	cPointMem = createHistoryComboBox(32);
 	lPointMem->setBuddy(cPointMem);
 	browsePointMem = createButton(tr("Browse..."), this, SLOT(browsePoints()));
@@ -186,15 +186,15 @@ CT::CycleTimer::CycleTimer(QWidget* parent)
 	cFull = createSpinBox(1, 16, 1, 1);
 	lFull->setBuddy(cFull);
 
-	QLabel* lQuarter = new QLabel(tr("&Sub-pel execution units:"));
+	QLabel* lQuarter = new QLabel(tr("Su&b-pel execution units:"));
 	cQuarter = createSpinBox(0, 16, 1, 1);
 	lQuarter->setBuddy(cQuarter);
 
-	QLabel* lRefFrames = new QLabel(tr("&Reference frames:"));
+	QLabel* lRefFrames = new QLabel(tr("R&eference frames:"));
 	cRefFrames = createSpinBox(1, 8, 1, 1);
 	lRefFrames->setBuddy(cRefFrames);
 
-	QLabel* lParitions = new QLabel(tr("Smallest &partition:"));
+	QLabel* lParitions = new QLabel(tr("Sma&llest partition:"));
 	cPartitions = new QComboBox;
 	lParitions->setBuddy(cPartitions);
 	cPartitions->addItem(tr("16x16"), 16);
@@ -202,13 +202,13 @@ CT::CycleTimer::CycleTimer(QWidget* parent)
 	cPartitions->addItem(tr("4x4"), 4);
 	cPartitions->setCurrentIndex(0);
 
-	QLabel* lFrequency = new QLabel(tr("Core frequenc&y (MHz):"));
+	QLabel* lFrequency = new QLabel(tr("&Core frequency (MHz):"));
 	cFrequency = createSpinBox(1, 1000, 10, 200);
 	lFrequency->setBuddy(cFrequency);
 
-	cMVCost = new QCheckBox(tr("Enable &Motion Vector cost optimization"));
+	cMVCost = new QCheckBox(tr("Enable Motion Vector c&ost optimization"));
 	cMVCost->setChecked(true);
-	cMVCand = new QCheckBox(tr("Enable &Motion Vector candidates"));
+	cMVCand = new QCheckBox(tr("Enable Motion Vector can&didates"));
 	cMVCand->setChecked(true);
 
 	QGridLayout* confLayout = new QGridLayout();
@@ -244,18 +244,23 @@ CT::CycleTimer::CycleTimer(QWidget* parent)
 	connect(cVideoFile, SIGNAL(currentIndexChanged(int)),
 		this, SLOT(videoBoxIndexChanged(int)));
 
-	QLabel* lRes = new QLabel(tr("Re&solution:"));
+	QLabel* lRes = new QLabel(tr("Resolut&ion:"));
 	cResX = createSpinBox(1, 9999, 1, 352);
 	lRes->setBuddy(cResX);
 	cResY = createSpinBox(1, 9999, 1, 288);
 
-	QLabel* lFrames = new QLabel(tr("&Maximum number of frames:"));
+	QLabel* lFrames = new QLabel(tr("Ma&ximum number of frames:"));
 	cFrames = createSpinBox(0, 10000, 10, 50);
 	lFrames->setBuddy(cFrames);
 
 	QLabel* lQP = new QLabel(tr("&QP (0 is lossless):"));
 	cQP = createSpinBox(0, 51, 1, 26);
 	lQP->setBuddy(cQP);
+
+	cOutput = new QCheckBox(tr("Outp&ut to:"));
+	cOutput->setChecked(false);
+	cOutputFile = createHistoryComboBox(32);
+	browseOutputFile = createButton(tr("Browse..."), this, SLOT(browseOutput()));
 
 	QGridLayout* videoLayout = new QGridLayout();
 	videoLayout->setColumnStretch(1, 1);
@@ -271,6 +276,9 @@ CT::CycleTimer::CycleTimer(QWidget* parent)
 	videoLayout->addWidget(cFrames, y++, 4);
 	videoLayout->addWidget(lQP, y, 0, 1, 2);
 	videoLayout->addWidget(cQP, y++, 4);
+	videoLayout->addWidget(cOutput, y, 0);
+	videoLayout->addWidget(cOutputFile, y, 1, 1, 4);
+	videoLayout->addWidget(browseOutputFile, y++, 5);
 	videoGroupBox->setLayout(videoLayout);
 
 
@@ -285,6 +293,7 @@ CT::CycleTimer::CycleTimer(QWidget* parent)
 	bLabel = resBox(resLayout, y++, x, tr("Label:"));
 	bFull = resBox(resLayout, y++, x, tr("Full-pel units:"));
 	bQuarter = resBox(resLayout, y++, x, tr("Sub-pel units:"));
+	bRefFrames = resBox(resLayout, y++, x, tr("Reference frames:"));
 	bPartitions = resBox(resLayout, y++, x, tr("Smallest partition:"));
 	bFrequency = resBox(resLayout, y++, x, tr("Core frequency (MHz):"));
 	bMVCost = resBox(resLayout, y++, x, tr("MV cost optimization:"));
@@ -293,7 +302,6 @@ CT::CycleTimer::CycleTimer(QWidget* parent)
 	resLabel(resLayout, y++, x, tr("Video data:"));
 	bFrames = resBox(resLayout, y++, x, tr("Frames processed:"));
 	bQP = resBox(resLayout, y++, x, tr("QP:"));
-	bRefFrames = resBox(resLayout, y++, x, tr("Reference frames:"));
 	y = 0;
 	x = 3;
 	resLabel(resLayout, y++, x, tr("Results:"));
@@ -308,12 +316,13 @@ CT::CycleTimer::CycleTimer(QWidget* parent)
 	bCyclesMBParallel = resBox(resLayout, y++, x, tr("Cycles / macroblock:"));
 	bEnergyMBParallel = resBox(resLayout, y++, x, tr("Energy / macroblock (nJ):"));
 
-	y += 2;
+	for (int i = 0; i < 3; i++)
+		resLayout->addWidget(new QLabel(), y++, x);
 	bQueue = resBox(resLayout, y++, x, tr("Run queue:"), 0);
 
 	resultsGroupBox->setLayout(resLayout);
 
-	runButton = createButton(tr("R&un"), this, SLOT(run()));
+	runButton = createButton(tr("&Run"), this, SLOT(run()));
 	runButton->setDefault(true);
 	stopButton = createButton(tr("&Stop"), this, SLOT(stop()));
 	stopButton->setEnabled(false);
@@ -330,18 +339,18 @@ CT::CycleTimer::CycleTimer(QWidget* parent)
 	QVBoxLayout* configLayout  = new QVBoxLayout;
 	QVBoxLayout* resultPaneLayout = new QVBoxLayout;
 	QHBoxLayout* resultLayout = new QHBoxLayout;
-	
-	resultPaneLayout->addWidget(
-		new QLabel("Note: Power figures are based on measurements taken on a Xilinx Virtex-4 SX35 device\n"
-	           "running the core and should not be compared with estimates taken from the Xpower tool."));
+
+	resultPaneLayout->addWidget
+		(new QLabel("Note: Power figures are based on measurements taken on a Xilinx Virtex-4 SX35 device\n"
+		            "running the core and should not be compared with estimates taken from the Xpower tool."));
 
 	configLayout->addWidget(confGroupBox);
 	configLayout->addWidget(videoGroupBox);
 
-    resultLayout->addLayout(configLayout);
+	resultLayout->addLayout(configLayout);
 	resultLayout->addLayout(resultPaneLayout);
-    resultPaneLayout->addWidget(resultsGroupBox);
-		
+	resultPaneLayout->addWidget(resultsGroupBox);
+
 	mainLayout->addLayout(resultLayout);
 	mainLayout->addWidget(buttonBox);
 
@@ -416,6 +425,10 @@ CT::PointItem* CT::CycleTimer::getConf()
 	if (pt.mvCand)
 		pt.lut += 259;
 	pt.videoFile = cVideoFile->currentText();
+	if (cOutput->isChecked())
+		pt.outputFile = cOutputFile->currentText();
+	else
+		pt.outputFile = QString();
 	pt.resX = cResX->value();
 	pt.resY = cResY->value();
 	pt.frames = cFrames->value();
@@ -542,6 +555,23 @@ void CT::CycleTimer::browseVideo()
 			cVideoFile->insertItem(0, file, QVariant(res));
 			cVideoFile->setCurrentIndex(0);
 		}
+	}
+}
+
+void CT::CycleTimer::browseOutput()
+{
+	QString file = QFileDialog::getSaveFileName
+		(this, tr("Output file"), cOutputFile->currentText(),
+		 tr("MKV files (*.mkv)"));
+	if (!file.isEmpty()) {
+		int existing = cOutputFile->findText(file);
+		if (existing >= 0) {
+			cOutputFile->setCurrentIndex(existing);
+		} else {
+			cOutputFile->insertItem(0, file);
+			cOutputFile->setCurrentIndex(0);
+		}
+		cOutput->setChecked(true);
 	}
 }
 
