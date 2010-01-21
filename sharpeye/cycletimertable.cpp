@@ -240,6 +240,7 @@ void CT::Table::exportTable()
 		VarProgMem, VarPointMem,
 		VarFull, VarQuarter, VarPartitions,
 		VarFrequency,
+		VarHadamard,
 		VarMVCost, VarMVCand,
 		VarLUT,
 		VarVideoFile,

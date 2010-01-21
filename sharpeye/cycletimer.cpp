@@ -206,7 +206,9 @@ CT::CycleTimer::CycleTimer(QWidget* parent)
 	cFrequency = createSpinBox(1, 1000, 10, 200);
 	lFrequency->setBuddy(cFrequency);
 
-	cMVCost = new QCheckBox(tr("Enable Motion Vector c&ost optimization"));
+	cHadamard = new QCheckBox(tr("Enable &Hadamard Transform during fractional-pel refinement"));
+	cHadamard->setChecked(true);
+	cMVCost = new QCheckBox(tr("Enable Motion Vector (Lagrangian) c&ost optimization"));
 	cMVCost->setChecked(true);
 	cMVCand = new QCheckBox(tr("Enable Motion Vector can&didates"));
 	cMVCand->setChecked(true);
@@ -230,6 +232,7 @@ CT::CycleTimer::CycleTimer(QWidget* parent)
 	confLayout->addWidget(cPartitions, y++, 2);
 	confLayout->addWidget(lFrequency, y, 0, 1, 2);
 	confLayout->addWidget(cFrequency, y++, 2);
+	confLayout->addWidget(cHadamard, y++, 0, 1, 3);
 	confLayout->addWidget(cMVCost, y++, 0, 1, 3);
 	confLayout->addWidget(cMVCand, y++, 0, 1, 3);
 	confGroupBox->setLayout(confLayout);
@@ -296,12 +299,14 @@ CT::CycleTimer::CycleTimer(QWidget* parent)
 	bRefFrames = resBox(resLayout, y++, x, tr("Reference frames:"));
 	bPartitions = resBox(resLayout, y++, x, tr("Smallest partition:"));
 	bFrequency = resBox(resLayout, y++, x, tr("Core frequency (MHz):"));
+	bHadamard = resBox(resLayout, y++, x, tr("Hadamard transform:"));
 	bMVCost = resBox(resLayout, y++, x, tr("MV cost optimization:"));
 	bMVCand = resBox(resLayout, y++, x, tr("MV candidates:"));
 	bLUT = resBox(resLayout, y++, x, tr("Logic cells:"));
 	resLabel(resLayout, y++, x, tr("Video data:"));
 	bFrames = resBox(resLayout, y++, x, tr("Frames processed:"));
 	bQP = resBox(resLayout, y++, x, tr("QP:"));
+	int maxY = y;
 	y = 0;
 	x = 3;
 	resLabel(resLayout, y++, x, tr("Results:"));
@@ -316,7 +321,7 @@ CT::CycleTimer::CycleTimer(QWidget* parent)
 	bCyclesMBParallel = resBox(resLayout, y++, x, tr("Cycles / macroblock:"));
 	bEnergyMBParallel = resBox(resLayout, y++, x, tr("Energy / macroblock (nJ):"));
 
-	for (int i = 0; i < 3; i++)
+	while (y + 1 < maxY)
 		resLayout->addWidget(new QLabel(), y++, x);
 	bQueue = resBox(resLayout, y++, x, tr("Run queue:"), 0);
 
@@ -373,6 +378,7 @@ void CT::CycleTimer::updateResults(PointItem* po)
 	bQuarter->setText(QString::number(pt.quarter));
 	bPartitions->setText(pt.strVal(VarPartitions));
 	bFrequency->setText(pt.strVal(VarFrequency));
+	bHadamard->setText(pt.strVal(VarHadamard));
 	bMVCost->setText(pt.strVal(VarMVCost));
 	bMVCand->setText(pt.strVal(VarMVCand));
 	bLUT->setText(QString::number(pt.lut));
@@ -415,11 +421,14 @@ CT::PointItem* CT::CycleTimer::getConf()
 	pt.quarter = cQuarter->value();
 	pt.partitions = cPartitions->itemData(cPartitions->currentIndex()).toInt();
 	pt.frequency = cFrequency->value();
+	pt.hadamard = cHadamard->isChecked();
 	pt.mvCost = cMVCost->isChecked();
 	pt.mvCand = cMVCand->isChecked();
 	pt.lut = 743 + 1555 * pt.full;
 	if (pt.quarter)
 		pt.lut += 5097 + 1749 * pt.quarter;
+	if (pt.hadamard)
+		pt.lut += 200;
 	if (pt.mvCost)
 		pt.lut += 329;
 	if (pt.mvCand)
@@ -680,6 +689,7 @@ void CT::CycleTimer::pointRemoved(PointItem* src)
 		bQuarter->setText(QString());
 		bPartitions->setText(QString());
 		bFrequency->setText(QString());
+		bHadamard->setText(QString());
 		bMVCost->setText(QString());
 		bMVCand->setText(QString());
 		bLUT->setText(QString());

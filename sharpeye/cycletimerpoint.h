@@ -45,6 +45,7 @@ enum Variable {
 	VarRefFrames,
 	VarPartitions,
 	VarFrequency,
+	VarHadamard,
 	VarMVCost,
 	VarMVCand,
 	VarLUT,
@@ -86,6 +87,7 @@ struct PointConf
 	int refFrames;
 	int frequency;
 	int partitions;
+	bool hadamard;
 	bool mvCost;
 	bool mvCand;
 	int lut;
@@ -171,6 +173,7 @@ private:
 	QLabel* bRefFrames;
 	QLabel* bPartitions;
 	QLabel* bFrequency;
+	QLabel* bHadamard;
 	QLabel* bMVCost;
 	QLabel* bMVCand;
 	QLabel* bLUT;

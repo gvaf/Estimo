@@ -32,7 +32,7 @@ cas_t *cas = NULL;
  * subpel_iters[i_subpel_refine] = { refine_hpel, refine_qpel, me_hpel, me_qpel }
  * where me_* are the number of EPZS iterations run on all candidate block types,
  * and refine_* are run only on the winner. */
-static const int subpel_iterations[][4] = 
+static const int subpel_iterations[][4] =
    {{1,0,0,0},
     {1,1,0,0},
     {0,1,1,0},
@@ -49,7 +49,8 @@ static void ensure_cas( x264_t *h )
 		       h->mb.i_cas_feu < 1 ? 1 : h->mb.i_cas_feu,
 		       h->mb.i_cas_foptl,
 		       h->mb.i_cas_qeu < 0 ? 0 : h->mb.i_cas_qeu,
-		       h->mb.i_cas_qoptl);
+	               h->mb.i_cas_qoptl,
+		       h->mb.b_cas_hadamard );
 }
 
 static void refine_subpel( x264_t *h, x264_me_t *m, int hpel_iters, int qpel_iters, int *p_halfpel_thresh, int b_refine_qpel );
@@ -186,13 +187,13 @@ static void x264_me_search_ref_orig( x264_t *h, x264_me_t *m, int (*mvc)[2], int
     const int bw = x264_pixel_size[m->i_pixel].w;
     const int bh = x264_pixel_size[m->i_pixel].h;
     const int i_pixel = m->i_pixel;
-    int i_me_range = h->param.analyse.i_me_range;
+    int i_me_range = h->param.analyse.i_hard_range >= 0 ? h->param.analyse.i_hard_range : h->param.analyse.i_me_range;
     int bmx, bmy, bcost;
     int bpred_mx = 0, bpred_my = 0, bpred_cost = COST_MAX;
     int omx, omy, pmx, pmy;
     uint8_t *p_fref = m->p_fref[0];
     DECLARE_ALIGNED( uint8_t, pix[16*16], 16 );
-    
+
     int i, j;
     int dir;
     int costs[6];
@@ -234,7 +235,7 @@ static void x264_me_search_ref_orig( x264_t *h, x264_me_t *m, int (*mvc)[2], int
         COST_MV( pmx, pmy );
         /* I don't know why this helps */
         bcost -= BITS_MVD(bmx,bmy);
-        
+
         for( i = 0; i < i_mvc; i++ )
         {
              const int mx = x264_clip3( ( mvc[i][0] + 2 ) >> 2, mv_x_min, mv_x_max );
@@ -243,7 +244,7 @@ static void x264_me_search_ref_orig( x264_t *h, x264_me_t *m, int (*mvc)[2], int
                  COST_MV( mx, my );
         }
     }
-    
+
     COST_MV( 0, 0 );
 
     switch( h->mb.i_me_method )
@@ -570,7 +571,7 @@ static void x264_me_search_ref_cas( x264_t *h, x264_me_t *m, int (*mvc)[2], int 
     const int i_pixel = m->i_pixel;
     int bmx, bmy, bcost;
     uint8_t *p_fref = m->p_fref[0];
-    
+
     int mv_x_min = h->mb.mv_min_fpel[0];
     int mv_y_min = h->mb.mv_min_fpel[1];
     int mv_x_max = h->mb.mv_max_fpel[0];
@@ -581,7 +582,7 @@ static void x264_me_search_ref_cas( x264_t *h, x264_me_t *m, int (*mvc)[2], int 
 
     uint8_t *ref, *cur;
     int ref_stride, cur_stride;
-            
+
     mv_x_min = X264_MAX(mv_x_min, -48);
     mv_y_min = X264_MAX(mv_y_min, -32);
     mv_x_max = X264_MIN(mv_x_max, 47);
@@ -601,7 +602,7 @@ static void x264_me_search_ref_cas( x264_t *h, x264_me_t *m, int (*mvc)[2], int 
     cur_stride = FENC_STRIDE;
 
     cas_process( cas, ref, ref_stride, cur, cur_stride,
-		 i_pixel, & h->pixf,
+                 i_pixel, & h->pixf,
                  bmx, bmy, mvc, h->mb.b_cas_mvcand ? i_mvc : 0,
                  mv_x_min, mv_x_max, mv_y_min, mv_y_max,
                  p_cost_mvx, p_cost_mvy );
@@ -620,12 +621,17 @@ static void x264_me_search_ref_cas( x264_t *h, x264_me_t *m, int (*mvc)[2], int 
 
 void x264_me_refine_qpel( x264_t *h, x264_me_t *m )
 {
-    int hpel = subpel_iterations[h->mb.i_subpel_refine][0];
-    int qpel = subpel_iterations[h->mb.i_subpel_refine][1];
+	int hpel, qpel;
+
+    if ( h->mb.i_me_method == X264_ME_CAS )
+	return;
+
+	hpel = subpel_iterations[h->mb.i_subpel_refine][0];
+	qpel = subpel_iterations[h->mb.i_subpel_refine][1];
 
     if( m->i_pixel <= PIXEL_8x8 && h->sh.i_type == SLICE_TYPE_P )
         m->cost -= m->i_ref_cost;
-	
+
     refine_subpel( h, m, hpel, qpel, NULL, 1 );
 }
 
@@ -1010,4 +1016,3 @@ void x264_me_refine_qpel_rd( x264_t *h, x264_me_t *m, int i_lambda2, int i8 )
     x264_macroblock_cache_mv ( h, 2*(i8&1), i8&2, bw, bh, 0, bmx, bmy );
     x264_macroblock_cache_mvd( h, 2*(i8&1), i8&2, bw, bh, 0, bmx - pmx, bmy - pmy );
 }
-

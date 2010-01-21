@@ -208,6 +208,7 @@ static void x264_mb_analyse_init( x264_t *h, x264_mb_analysis_t *a, int i_qp )
     h->mb.i_cas_qoptl = h->param.analyse.i_cas_qoptl;
     h->mb.p_cas_prog = h->param.analyse.p_cas_prog;
     h->mb.p_cas_point = h->param.analyse.p_cas_point;
+    h->mb.b_cas_hadamard = h->param.analyse.b_cas_hadamard;
     h->mb.b_cas_mvcost = h->param.analyse.b_cas_mvcost;
     h->mb.b_cas_mvcand = h->param.analyse.b_cas_mvcand;
     h->mb.i_subpel_refine = h->param.analyse.i_subpel_refine;

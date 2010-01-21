@@ -4,6 +4,7 @@
 	Version="9,00"
 	Name="x264"
 	ProjectGUID="{22E1814D-7955-4456-AEA5-0C9BA7500792}"
+	RootNamespace="x264"
 	TargetFrameworkVersion="131072"
 	>
 	<Platforms>

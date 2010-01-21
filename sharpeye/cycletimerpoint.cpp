@@ -93,6 +93,8 @@ CT::varLabel(CT::Variable var, bool units)
 		if (units)
 			return QObject::tr("Core frequency (MHz)");
 		return QObject::tr("Core frequency");
+	case VarHadamard:
+		return QObject::tr("Hadamard transform");
 	case VarMVCost:
 		return QObject::tr("MV cost optimization");
 	case VarMVCand:
@@ -170,6 +172,7 @@ CT::varMinStep(CT::Variable var)
 	case VarQuarter:
 	case VarPartitions:
 	case VarFrequency:
+	case VarHadamard:
 	case VarMVCost:
 	case VarMVCand:
 	case VarResX:
@@ -217,6 +220,8 @@ int CT::PointConf::intVal(Variable var) const
 		return partitions;
 	case VarFrequency:
 		return frequency;
+	case VarHadamard:
+		return int(hadamard);
 	case VarMVCost:
 		return int(mvCost);
 	case VarMVCand:
@@ -245,6 +250,7 @@ qreal CT::PointConf::realVal(Variable var) const
 	case VarQuarter:
 	case VarPartitions:
 	case VarFrequency:
+	case VarHadamard:
 	case VarMVCost:
 	case VarMVCand:
 	case VarLUT:
@@ -288,6 +294,8 @@ QString CT::PointConf::strVal(Variable var) const
 			QString s = QString::number(partitions);
 			return s + QObject::tr("x") + s;
 		}
+	case VarHadamard:
+		return enabledDisabled(hadamard);
 	case VarMVCost:
 		return enabledDisabled(mvCost);
 	case VarMVCand:
@@ -311,6 +319,7 @@ int CT::PointData::intVal(Variable var) const
 	case VarQuarter:
 	case VarPartitions:
 	case VarFrequency:
+	case VarHadamard:
 	case VarMVCost:
 	case VarMVCand:
 	case VarLUT:
@@ -333,6 +342,7 @@ qreal CT::PointData::realVal(Variable var) const
 	case VarQuarter:
 	case VarPartitions:
 	case VarFrequency:
+	case VarHadamard:
 	case VarMVCost:
 	case VarMVCand:
 	case VarLUT:
@@ -389,6 +399,7 @@ QString CT::PointData::strVal(Variable var) const
 	case VarQuarter:
 	case VarPartitions:
 	case VarFrequency:
+	case VarHadamard:
 	case VarMVCost:
 	case VarMVCand:
 	case VarLUT:
@@ -438,6 +449,7 @@ CT::PointItem::PointItem(const PointConf& conf)
 	p.quarter = conf.quarter;
 	p.partitions = conf.partitions;
 	p.frequency = conf.frequency;
+	p.hadamard = conf.hadamard;
 	p.mvCost = conf.mvCost;
 	p.mvCand = conf.mvCand;
 	p.lut = conf.lut;
@@ -571,9 +583,11 @@ void CT::PointItem::x264Run()
 		args << "--partitions" << "none";
 	}
 	args << "--me" << "cas"
-	     << "--subme" << "1"
+	     << "--subme" << "2"
 	     << "--casfeu" << QString::number(p.full)
 	     << "--casqeu" << QString::number(p.quarter);
+	if (p.hadamard)
+		args << "--cashadamard";
 	if (!p.mvCost)
 		args << "--no-casmvcost";
 	if (!p.mvCand)
@@ -695,6 +709,8 @@ CT::DetailsDialog::DetailsDialog(QWidget* parent, PointItem* point)
 				   pt.strVal(VarPartitions));
 	bFrequency = addLabelPair(layout, y++, x, tr("Core frequency (MHz):"),
 	                          pt.strVal(VarFrequency));
+	bHadamard = addLabelPair(layout, y++, x, tr("Hadamard transform:"),
+			       pt.strVal(VarHadamard));
 	bMVCost = addLabelPair(layout, y++, x, tr("MV cost optimization:"),
 			       pt.strVal(VarMVCost));
 	bMVCand = addLabelPair(layout, y++, x, tr("MV candidates:"),
@@ -753,6 +769,7 @@ void CT::DetailsDialog::changed(CT::PointItem* point)
 	bQuarter->setText(pt.strVal(VarQuarter));
 	bPartitions->setText(pt.strVal(VarPartitions));
 	bFrequency->setText(pt.strVal(VarFrequency));
+	bHadamard->setText(pt.strVal(VarHadamard));
 	bMVCost->setText(pt.strVal(VarMVCost));
 	bMVCand->setText(pt.strVal(VarMVCand));
 	bLUT->setText(pt.strVal(VarLUT));
@@ -764,7 +781,7 @@ void CT::DetailsDialog::changed(CT::PointItem* point)
 	bRefFrames->setText(pt.strVal(VarRefFrames));
 	bBitRate->setText(pt.strVal(VarBitRate));
 	bPSNR->setText(pt.strVal(VarPSNR));
-	bPointMem->setText(pt.strVal(VarPower));
+	bPower->setText(pt.strVal(VarPower));
 	bFPS->setText(pt.strVal(VarFPS));
 	bCyclesMB->setText(pt.strVal(VarCyclesMB));
 	bEnergyMB->setText(pt.strVal(VarEnergyMB));

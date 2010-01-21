@@ -222,10 +222,12 @@ typedef struct x264_param_t
         int          i_cas_qeu; /* number of execution units for quarter pel in cycle-accurate model */
         int          i_cas_qoptl; /* repeated-points optimization level for quarter pel */
         int          b_cas_mvcost; /* motion vector cost optimazation enabled */
+        int          b_cas_hadamard; /* Hadamard transform for quarter pel search enabled */
         int          b_cas_mvcand; /* motion vector candidates optimazation enabled */
         uint32_t     *p_cas_prog; /* program memory for cycle-accurate model search */
         uint16_t     *p_cas_point; /* point memory for cycle-accurate model search */
         int          i_me_range; /* integer pixel motion estimation search range (from predicted mv) */
+        int          i_hard_range; /* integer pixel motion estimation search range (from predicted mv) */
         int          i_mv_range; /* maximum length of a mv (in pixels). -1 = auto, based on level */
         int          i_mv_range_thread; /* minimum space between threads. -1 = auto, based on number of threads. */
         int          i_subpel_refine; /* subpixel motion estimation quality */

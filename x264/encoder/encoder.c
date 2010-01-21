@@ -741,6 +741,7 @@ int x264_encoder_reconfig( x264_t *h, x264_param_t *param )
     COPY( analyse.i_direct_mv_pred );
     COPY( analyse.i_me_method );
     COPY( analyse.i_me_range );
+    COPY( analyse.i_hard_range );
     COPY( analyse.i_noise_reduction );
     COPY( analyse.i_subpel_refine );
     COPY( analyse.i_trellis );

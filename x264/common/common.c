@@ -121,9 +121,11 @@ void    x264_param_default( x264_param_t *param )
     param->analyse.i_cas_qoptl = 0;
     param->analyse.p_cas_prog = NULL;
     param->analyse.p_cas_point = NULL;
+    param->analyse.b_cas_hadamard = 0;
     param->analyse.b_cas_mvcost = 1;
     param->analyse.b_cas_mvcand = 1;
     param->analyse.i_me_range = 16;
+    param->analyse.i_hard_range = -1;
     param->analyse.i_subpel_refine = 5;
     param->analyse.b_chroma_me = 1;
     param->analyse.i_mv_range_thread = -1;
@@ -542,12 +544,16 @@ int x264_param_parse( x264_param_t *p, const char *name, const char *value )
         b_error |= parse_memory_32( value, 256, 20, &p->analyse.p_cas_prog );
     OPT("caspoint")
         b_error |= parse_memory_16( value, 256, 16, &p->analyse.p_cas_point );
+    OPT("cashadamard")
+        p->analyse.b_cas_hadamard = atobool(value);
     OPT("casmvcost")
         p->analyse.b_cas_mvcost = atobool(value);
     OPT("casmvcand")
         p->analyse.b_cas_mvcand = atobool(value);
     OPT2("merange", "me-range")
         p->analyse.i_me_range = atoi(value);
+    OPT2("hardrange", "hard-range")
+        p->analyse.i_hard_range = atoi(value);
     OPT2("mvrange", "mv-range")
         p->analyse.i_mv_range = atoi(value);
     OPT2("mvrange-thread", "mv-range-thread")
@@ -995,6 +1001,7 @@ char *x264_param2string( x264_param_t *p, int b_res )
     s += sprintf( s, " brdo=%d", p->analyse.b_bframe_rdo );
     s += sprintf( s, " mixed_ref=%d", p->analyse.b_mixed_references );
     s += sprintf( s, " me_range=%d", p->analyse.i_me_range );
+    s += sprintf( s, " hard_range=%d", p->analyse.i_hard_range );
     s += sprintf( s, " chroma_me=%d", p->analyse.b_chroma_me );
     s += sprintf( s, " trellis=%d", p->analyse.i_trellis );
     s += sprintf( s, " 8x8dct=%d", p->analyse.b_transform_8x8 );

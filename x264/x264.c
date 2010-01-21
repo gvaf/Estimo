@@ -237,9 +237,11 @@ static void Help( x264_param_t *defaults, int b_longhelp )
     H0( "      --casqoptl <integer>    Repeat points optimization level of CAS quarter pel [0]\n" );
     H0( "      --casprog <string>      Filename of CAS program memory\n" );
     H0( "      --caspoint <string>     Filename of CAS point memory\n" );
+    H1( "      --cashadamard           Enable Hadamard transform for quarter pel\n" );
     H1( "      --no-casmvcost          Disable motion vector cost optimization\n" );
     H1( "      --no-casmvcand          Disable motion vector candidates optimization\n" );
     H0( "      --merange <integer>     Maximum motion vector search range [%d]\n", defaults->analyse.i_me_range );
+    H0( "      --hardrange <integer>   Maximum hard search range [%d]\n", defaults->analyse.i_hard_range );
     H1( "      --mvrange <integer>     Maximum motion vector length [-1 (auto)]\n" );
     H1( "      --mvrange-thread <int>  Minimum buffer between threads [-1 (auto)]\n" );
     H0( "  -m, --subme <integer>       Subpixel motion estimation and partition\n"
@@ -415,9 +417,11 @@ static int  Parse( int argc, char **argv,
             { "casprog", required_argument, NULL, 0 },
             { "caspoint",required_argument, NULL, 0 },
             { "caspoint",required_argument, NULL, 0 },
+            { "cashadamard", no_argument,   NULL, 0 },
             { "no-casmvcost", no_argument,  NULL, 0 },
             { "no-casmvcand", no_argument,  NULL, 0 },
             { "merange", required_argument, NULL, 0 },
+            { "hardrange", required_argument, NULL, 0 },
             { "mvrange", required_argument, NULL, 0 },
             { "mvrange-thread", required_argument, NULL, 0 },
             { "subme",   required_argument, NULL, 'm' },

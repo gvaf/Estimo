@@ -73,6 +73,7 @@ private:
 	QSpinBox* cRefFrames;
 	QComboBox* cPartitions;
 	QSpinBox* cFrequency;
+	QCheckBox* cHadamard;
 	QCheckBox* cMVCost;
 	QCheckBox* cMVCand;
 
@@ -91,6 +92,7 @@ private:
 	QLabel* bQuarter;
 	QLabel* bPartitions;
 	QLabel* bFrequency;
+	QLabel* bHadamard;
 	QLabel* bMVCost;
 	QLabel* bMVCand;
 	QLabel* bLUT;

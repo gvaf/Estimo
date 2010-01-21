@@ -695,6 +695,7 @@ CT::Graph::Graph(QWidget* parent)
 	addToCombo(zCombo, VarFull, zDefault);
 	addToCombo(zCombo, VarQuarter, zDefault);
 	addToCombo(zCombo, VarFrequency, zDefault);
+	addToCombo(zCombo, VarHadamard, zDefault);
 	addToCombo(zCombo, VarMVCost, zDefault);
 	addToCombo(zCombo, VarMVCand, zDefault);
 	addToCombo(zCombo, VarLUT, zDefault);

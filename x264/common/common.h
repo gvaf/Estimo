@@ -372,6 +372,7 @@ struct x264_t
         int     i_cas_qoptl;
         uint32_t     *p_cas_prog;
         uint16_t     *p_cas_point;
+        int     b_cas_hadamard;
         int     b_cas_mvcost;
         int     b_cas_mvcand;
         int     i_subpel_refine;

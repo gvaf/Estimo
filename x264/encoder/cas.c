@@ -30,8 +30,6 @@ static void interp_hor(cas_t *cas);
 static void interp_ver(cas_t *cas);
 static void interp_dia(cas_t *cas);
 
-typedef int (*pixel_qsad_t)(const uint8_t *pix1, int stride1, const uint8_t *pixr1, const uint8_t *pixr2, int strider1, int strider2);
-
 static int mb_w[] = {
     16, /* 16x16 */
     16, /* 16x8 */
@@ -69,49 +67,47 @@ static int qcycles_iter[] = {
     3   /* 4x4 */
 };
 
+typedef void (*pixel_interp_t)(uint8_t *dst, int dst_stride, const uint8_t *pixr1, const uint8_t *pixr2, int strider1, int strider2);
 
-#define PIXEL_QSAD_C(lx, ly) /* lx and ly must be 4, 8 or 16 */         \
-    static int                                                          \
-    pixel_qsad_##lx##x##ly(const uint8_t *pix1, int stride1,            \
-                           const uint8_t *pixr1, const uint8_t *pixr2,  \
-                           int strider1, int strider2)                  \
+#define PIXEL_INTERP_C(lx, ly) /* lx and ly must be 4, 8 or 16 */       \
+    static void                                                         \
+    pixel_interp_##lx##x##ly(uint8_t *dst, int dst_stride,              \
+                             const uint8_t *pixr1, const uint8_t *pixr2, \
+                             int strider1, int strider2)                \
     {                                                                   \
-        int sum = 0;                                                    \
         int x, y;                                                       \
-        /* memory read/write and vector motion vector decision */       \
         for (y = 0; y < ly; ++y) {                                      \
             for (x = 0; x < lx; ++x)                                    \
-                sum += abs(pix1[x] - ((pixr1[x] + pixr2[x] + 1) >> 1)); \
-            pix1 += stride1;                                            \
+                dst[x] = (pixr1[x] + pixr2[x] + 1) >> 1;                \
+            dst += dst_stride;                                          \
             pixr1 += strider1;                                          \
             pixr2 += strider2;                                          \
         }                                                               \
-        return sum;                                                     \
     }
 
-PIXEL_QSAD_C(16, 16)
-PIXEL_QSAD_C(16, 8)
-PIXEL_QSAD_C(8, 16)
-PIXEL_QSAD_C(8, 8)
-PIXEL_QSAD_C(8, 4)
-PIXEL_QSAD_C(4, 8)
-PIXEL_QSAD_C(4, 4)
-//#undef PIXEL_QSAD_C
+PIXEL_INTERP_C(16, 16)
+PIXEL_INTERP_C(16, 8)
+PIXEL_INTERP_C(8, 16)
+PIXEL_INTERP_C(8, 8)
+PIXEL_INTERP_C(8, 4)
+PIXEL_INTERP_C(4, 8)
+PIXEL_INTERP_C(4, 4)
+#undef PIXEL_INTERP_C
 
-static pixel_qsad_t qsad[] = {
-    pixel_qsad_16x16,
-    pixel_qsad_16x8,
-    pixel_qsad_8x16,
-    pixel_qsad_8x8,
-    pixel_qsad_8x4,
-    pixel_qsad_4x8,
-    pixel_qsad_4x4
+static pixel_interp_t interp[] = {
+    pixel_interp_16x16,
+    pixel_interp_16x8,
+    pixel_interp_8x16,
+    pixel_interp_8x8,
+    pixel_interp_8x4,
+    pixel_interp_4x8,
+    pixel_interp_4x4
 };
 
 
 
 cas_t *
-cas_new(const uint32_t *prog_mem, const uint16_t *point_mem, int feu, int foptl, int qeu, int qoptl)
+cas_new(const uint32_t *prog_mem, const uint16_t *point_mem, int feu, int foptl, int qeu, int qoptl, int hadamard)
 {
     cas_t *cas = (cas_t *) malloc(sizeof(cas_t));
     if (!cas)
@@ -123,6 +119,7 @@ cas_new(const uint32_t *prog_mem, const uint16_t *point_mem, int feu, int foptl,
     cas->foptl = foptl;
     cas->qeu = qeu;
     cas->qoptl = qoptl;
+    cas->hadamard = hadamard;
 
     cas->fpts_done_off = cas->fpts_done_n = 0;
     cas->fpts_done_cap = sizeof(cas->fpts_done) / sizeof(cas->fpts_done[0]) / 2;
@@ -148,11 +145,11 @@ cas_del(cas_t *cas)
 
 void
 cas_process(cas_t *cas,
-	    uint8_t *ref, int ref_stride, uint8_t *cur, int cur_stride,
-	    int i_pixel, x264_pixel_function_t *pixf,
-	    int pmx, int pmy, int mvc[][2], int i_mvc,
-	    int x_min, int x_max, int y_min, int y_max,
-	    const int16_t *p_cost_mvx, const int16_t *p_cost_mvy)
+            uint8_t *ref, int ref_stride, uint8_t *cur, int cur_stride,
+            int i_pixel, x264_pixel_function_t *pixf,
+            int pmx, int pmy, int mvc[][2], int i_mvc,
+            int x_min, int x_max, int y_min, int y_max,
+            const int16_t *p_cost_mvx, const int16_t *p_cost_mvy)
 {
     assert(cas->fidle || cas->qidle);
 
@@ -251,10 +248,12 @@ cas_execute(cas_t *cas)
         cas->qcur_stride = cas->fcur_stride;
         cas->qpts_done_off = cas->qpts_done_n = 0;
         cas->q_pixel = cas->f_pixel;
+        cas->q_pixf = cas->f_pixf;
         cas->qfx = cas->fx;
         cas->qfy = cas->fy;
         cas->qx = cas->qy = 0;
         cas->qcost = cas->fcost;
+	cas->qstarted = 0;
         cas->qcounter = cas->fcounter;
 	cas->qjmpflag = cas->fjmpflag;
         cas->qwinner = 0;
@@ -550,6 +549,10 @@ inst_quarter_pel(cas_t *cas, uint32_t inst)
         }
     }
     points_on_eu = (opt_points + cas->qeu - 1) / cas->qeu;
+    if (cas->hadamard && !cas->qstarted) {
+        // extra iteration to calculate SATD cost
+        cycles += qcycles_iter[cas->q_pixel] + 11;
+    }
     cycles += qcycles_iter[cas->q_pixel] * points_on_eu + 11;
     frac_pel(cas, point_n, point_addr);
     if (cas->qoptl) {
@@ -638,7 +641,6 @@ full_pel(cas_t *cas, uint8_t point_n, uint8_t point_addr)
     }
 }
 
-
 static void
 frac_pel(cas_t *cas, uint8_t point_n, uint8_t point_addr)
 {
@@ -657,13 +659,30 @@ frac_pel(cas_t *cas, uint8_t point_n, uint8_t point_addr)
     int oqy = cas->qy;
     int qfx = cas->qfx << 2;
     int qfy = cas->qfy << 2;
+    uint8_t interpolated[16*16];
+
+    pixel_interp_t pi = interp[cas->q_pixel];
+    x264_pixel_cmp_t cmp = cas->q_pixf->sad[cas->q_pixel];
+    if (cas->hadamard) {
+        cmp = cas->q_pixf->satd[cas->q_pixel];
+
+        if (!cas->qstarted) {
+			int cost;
+
+            // first frac pel with Hadamard transform
+            cas->qstarted = 1;
+            cost = cmp( (uint8_t *)cas->qcur, cas->qcur_stride, (uint8_t *)ori_o, ori_w );
+
+            cost += cas->p_cost_mvx[qfx] + cas->p_cost_mvy[qfy];
+            cas->qcost = cost;
+        }
+    }
 
     cas->qwinner = 0;
     for (i = 0; i < point_n; ++i) {
         int qx = oqx + (int8_t) (cas->point_mem[point_addr + i] >> 8);
         int qy = oqy + (int8_t) (cas->point_mem[point_addr + i]);
         int x_int = qx >> 2, y_int = qy >> 2;
-        pixel_qsad_t q = qsad[cas->q_pixel];
         int cost = 0;
 
         if (qx < -range || qx > range || qy < -range || qy > range)
@@ -679,8 +698,8 @@ frac_pel(cas_t *cas, uint8_t point_n, uint8_t point_addr)
                 int w1 = ref1 ## _w, w2 = ref2 ## _w;           \
 		int of1 = x_int + r1x + (y_int + r1y) * w1;     \
 		int of2 = x_int + r2x + (y_int + r2y) * w2;     \
-                cost = q(cas->qcur, cas->qcur_stride,           \
-		         o1 + of1, o2 + of2, w1, w2);           \
+                pi(interpolated, 16,                            \
+		   o1 + of1, o2 + of2, w1, w2);                 \
             } break
 
             CASE_XY(0, 0, ori, 0, 0, ori, 0, 0);
@@ -703,10 +722,12 @@ frac_pel(cas_t *cas, uint8_t point_n, uint8_t point_addr)
             /* CASE_XY(3, 1, dia, 0, 0, ori, 1, 0); */
             /* CASE_XY(3, 3, dia, 0, 0, ori, 1, 1); */
 
-#undef COST_MV_QP
+#undef CASE_XY
 
         }
 
+	cost = cmp((uint8_t *)cas->qcur, cas->qcur_stride,
+	           (uint8_t *)interpolated, 16);
         cost += cas->p_cost_mvx[qfx + qx] + cas->p_cost_mvy[qfy + qy];
         if (cost < cas->qcost) {
             cas->qcost = cost;
@@ -763,9 +784,9 @@ interp_ori(cas_t *cas)
     int y;
 
     mtop = x264_clip3(cas->y_min - y0, 0, h);
-    mbottom = x264_clip3(y0 + h - 1 - cas->y_max, 0, h - mtop);
+    mbottom = x264_clip3(y0 + ORI_AY - 1 - cas->y_max, 0, h - mtop);
     mleft = x264_clip3(cas->x_min - x0, 0, w);
-    mright = x264_clip3(x0 + w - 1 - cas->x_max, 0, w - mleft);
+    mright = x264_clip3(x0 + ORI_AX - 1 - cas->x_max, 0, w - mleft);
 
     if (mtop) {
         memset(dst, 0, mtop * w);
