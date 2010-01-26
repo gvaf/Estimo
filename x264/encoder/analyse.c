@@ -2117,6 +2117,16 @@ void x264_macroblock_analyse( x264_t *h )
             if( h->mb.i_type == P_SKIP )
                 return;
 
+    if(analysis.l0.me16x16.cost < 200*analysis.i_lambda) //JOse avoid keep going when result is pretty good
+    {
+        // Select best inter mode 
+        i_type = P_L0;
+        i_partition = D_16x16;
+        i_cost = analysis.l0.me16x16.cost;
+    }
+    else
+    {
+
             if( flags & X264_ANALYSE_PSUB16x16 )
             {
                 if( h->param.analyse.b_mixed_references )
@@ -2175,6 +2185,8 @@ void x264_macroblock_analyse( x264_t *h )
                 x264_mb_analyse_inter_p8x16( h, &analysis );
                 COPY3_IF_LT( i_cost, analysis.l0.i_cost8x16, i_type, P_L0, i_partition, D_8x16 );
             }
+
+    }
 
             h->mb.i_partition = i_partition;
 
