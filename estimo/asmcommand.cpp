@@ -136,13 +136,9 @@ QString CmpCmd::evalString() const
   if( opr == GREATER)   cmd = "cmpg";
   if( opr == LESS)      cmd = "cmpl";
   if( opr == EQUAL)     cmd = "cmpe";
-  if( opr == NOT_EQUAL) cmd = "cmpne";
+  //if( opr == NOT_EQUAL) cmd = "cmpne";   deprecated emulated using equal
 
-  // deprecated
-  if( reg == CmpCmd::SAD )    regstr = "sad";
-  if( reg == CmpCmd::MX )     regstr = "Mx";
-  if( reg == CmpCmd::MY )     regstr = "My";
-
+  if( reg == CmpCmd::WINID )  regstr = "winid";
 
   if( reg == CmpCmd::COST )   regstr = "cost";
   
@@ -159,8 +155,7 @@ QString CmpCmd::evalString() const
 
 	  return asmtext;
   }
-  
-  
+    
  return QString("%1   %2 %3, %4 ").arg(lbl).arg(cmd).arg(regstr).arg(num);
 }
 
@@ -177,10 +172,7 @@ BinaryWord CmpCmd::eval(EvalParam *param) const
 
   if( reg == CmpCmd::COST )   registerBin = BIN_T_COST;
   if( reg == CmpCmd::LENGTH ) registerBin = BIN_T_LENGTH;
-
-  if( reg == SAD ) registerBin = BIN_T_SAD; // deprecated
-  if( reg == MX )  registerBin = BIN_T_MX;  // deprecated
-  if( reg == MY )  registerBin = BIN_T_MY;  // deprecated
+  if( reg == CmpCmd::WINID )  registerBin = BIN_T_WINID;
 
   return opcode + registerBin + BinaryWord::toBinary(num, CONF.cmpg_num, true);
 }

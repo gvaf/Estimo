@@ -66,6 +66,15 @@ static int qcycles_iter[] = {
     5,  /* 4x8 */
     3   /* 4x4 */
 };
+static int icycles_iter[] = {
+    159, /* 16x16 */
+    99,  /* 16x8 */
+    99,  /* 8x16 */
+    63,  /* 8x8 */
+    45,  /* 8x4 */
+    45,  /* 4x8 */
+    33   /* 4x4 */
+};
 
 typedef void (*pixel_interp_t)(uint8_t *dst, int dst_stride, const uint8_t *pixr1, const uint8_t *pixr2, int strider1, int strider2);
 
@@ -262,7 +271,7 @@ cas_execute(cas_t *cas)
         inst = cas->prog_mem[cas->fcounter];
         op = (inst & 0xf0000) >> 16;
         if (cas->qeu > 0 && op == 1) { /* frac pel */
-            cycles = 159; // 309;
+            cycles = icycles_iter[cas->q_pixel];
             cas->cycles += cycles;
             add_energy(cas, cycles);
             interp_ori(cas);
@@ -667,12 +676,11 @@ frac_pel(cas_t *cas, uint8_t point_n, uint8_t point_addr)
         cmp = cas->q_pixf->satd[cas->q_pixel];
 
         if (!cas->qstarted) {
-			int cost;
+            int cost;
 
             // first frac pel with Hadamard transform
             cas->qstarted = 1;
-            cost = cmp( (uint8_t *)cas->qcur, cas->qcur_stride, (uint8_t *)ori_o, ori_w );
-
+            cost = cmp((uint8_t *)cas->qcur, cas->qcur_stride, (uint8_t *)ori_o, ori_w);
             cost += cas->p_cost_mvx[qfx] + cas->p_cost_mvy[qfy];
             cas->qcost = cost;
         }

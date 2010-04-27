@@ -448,6 +448,7 @@ class AsmCondition : public Entity
 
   enum
   {
+   UNKNOWN_REGISTER,
    REGISTER,
    WINNING,
    EQUAL_OPERATOR,

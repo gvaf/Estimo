@@ -73,10 +73,7 @@ int max_height;
 // Registers
 std::string COST;
 std::string LENGTH;
-
-std::string SAD; // deprecated
-std::string Mx;  // deprecated
-std::string My; // deprecated
+std::string WINID;
 
 // chk <start_pattern_address>,  <number_of_points>
 std::string chk_opcode;
@@ -236,6 +233,7 @@ std::string getRegisterName(std::string bits)
 {
   if( bits == COST ) return "cost    ";
   if( bits == LENGTH ) return "length  ";
+  if( bits == WINID ) return "winid  ";
 }
 
 std::string compRegValueStr(std::string bits, int param)
@@ -252,6 +250,11 @@ std::string compRegValueStr(std::string bits, int param)
   {
 	   regName = "length  ";    
 	   s << regName << "0x" << setw( 4 ) << std::setfill( '0' ) << std::hex << param;
+  }
+  else  if( bits == WINID )
+  {
+	  regName = "winid    ";
+	  s << regName << dec << param;
   }
 
   return s.str();
@@ -314,13 +317,6 @@ if( opcode == cmpg_opcode )
 if( opcode == cmpe_opcode )
  {
    cout << "cmpe     " <<  compRegValueStr(regName, convertToInt("0" + arg2_14bits)) << endl;
- }
-
-
-//[Instruction: Compare if reg is not equal to number] ; cmpne <register>, <number>
-if( opcode == cmpne_opcode )
- {
-   cout << "cmpne     " <<  compRegValueStr(regName, convertToInt("0" + arg2_14bits)) << endl;
  }
 
 
@@ -526,10 +522,7 @@ void loadIni(std::string filename)
 	// [Registers]
 	COST = std::string( ini.GetValue("Registers", "COST", empty ));
 	LENGTH = std::string( ini.GetValue("Registers", "LENGTH", empty ));
-
-	SAD = std::string( ini.GetValue("Registers", "SAD", empty ));  // deprecated!
-	Mx  = std::string( ini.GetValue("Registers", "Mx", empty ));   // deprecated!
-	My  = std::string( ini.GetValue("Registers", "My", empty ));   // deprecated!
+	WINID = std::string( ini.GetValue("Registers", "WINID", empty ));
 
 	// chk <start_pattern_address>,<number_of_pos>
 	chk_opcode = std::string( ini.GetValue("Instruction: Check full-pel Pattern", "opcode", empty ));

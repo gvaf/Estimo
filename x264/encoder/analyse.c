@@ -2109,6 +2109,7 @@ void x264_macroblock_analyse( x264_t *h )
             int i_partition;
             int i_thresh16x8;
             int i_satd_inter, i_satd_intra;
+	    int cost_thresh;
 
             x264_mb_analyse_load_costs( h, &analysis );
 
@@ -2117,7 +2118,10 @@ void x264_macroblock_analyse( x264_t *h )
             if( h->mb.i_type == P_SKIP )
                 return;
 
-    if(analysis.l0.me16x16.cost < 200*analysis.i_lambda) //JOse avoid keep going when result is pretty good
+    cost_thresh = 200 * analysis.i_lambda;
+    if( h->param.analyse.b_cas_hadamard && h->param.analyse.i_cas_qeu > 0 )
+        cost_thresh *= 2;
+    if(analysis.l0.me16x16.cost < cost_thresh) // Jose avoid keep going when result is pretty good
     {
         // Select best inter mode 
         i_type = P_L0;

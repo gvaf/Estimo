@@ -62,13 +62,10 @@ Settings::Settings(QString conFile)
   min_height = QString( ini.GetValue("Reference Frame", "min-height", NULL )).toInt();
   max_height = QString( ini.GetValue("Reference Frame", "max-height", NULL )).toInt();
 
-  // [Registers]
-  SAD  = QString( ini.GetValue("Registers", "SAD", NULL ));
+  // [Registers]  
   COST   = QString( ini.GetValue("Registers", "COST", NULL ));
   LENGTH = QString( ini.GetValue("Registers", "LENGTH", NULL ));
-
-  Mx  = QString( ini.GetValue("Registers", "Mx", NULL ));
-  My  = QString( ini.GetValue("Registers", "My", NULL ));
+  WINID  = QString( ini.GetValue("Registers", "WINID", NULL ));
 
 	// chk <start_pattern_address>,<number_of_pos>
 	chk_opcode= QString( ini.GetValue("Instruction: Check full-pel Pattern", "opcode", NULL ));

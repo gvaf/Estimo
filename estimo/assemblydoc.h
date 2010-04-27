@@ -43,11 +43,9 @@
 #define BIN_T_GT         BinaryWord::toBinary(CONF.cmpg_opcode)
 #define BIN_T_EQ         BinaryWord::toBinary(CONF.cmpe_opcode)
 #define BIN_T_NE         BinaryWord::toBinary(CONF.cmpne_opcode)
-#define BIN_T_SAD        BinaryWord::toBinary(CONF.SAD)
 #define BIN_T_COST       BinaryWord::toBinary(CONF.COST)
 #define BIN_T_LENGTH     BinaryWord::toBinary(CONF.LENGTH)
-#define BIN_T_MX         BinaryWord::toBinary(CONF.Mx)
-#define BIN_T_MY         BinaryWord::toBinary(CONF.My)
+#define BIN_T_WINID      BinaryWord::toBinary(CONF.WINID)
 #define BIN_T_HALT       BinaryWord::toBinary(CONF.halt_opcode)
 #define BIN_T_MVC_MODE   BinaryWord::toBinary(CONF.mvc_opcode)
 

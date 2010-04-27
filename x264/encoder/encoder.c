@@ -263,7 +263,7 @@ static void x264_slice_header_write( bs_t *s, x264_slice_header_t *sh, int i_nal
             {
                 bs_write_ue( s, sh->ref_pic_list_order[0][i].idc );
                 bs_write_ue( s, sh->ref_pic_list_order[0][i].arg );
-                        
+
             }
             bs_write_ue( s, 3 );
         }
@@ -400,7 +400,7 @@ static int x264_validate_parameters( x264_t *h )
         h->param.analyse.i_trellis = 0;
         h->param.analyse.b_fast_pskip = 0;
         h->param.analyse.i_noise_reduction = 0;
-        h->param.analyse.i_subpel_refine = x264_clip3( h->param.analyse.i_subpel_refine, 1, 6 );
+        h->param.analyse.i_subpel_refine = x264_clip3( h->param.analyse.i_subpel_refine, 0, 6 );
     }
     if( h->param.rc.i_rc_method == X264_RC_CQP )
     {
@@ -417,7 +417,7 @@ static int x264_validate_parameters( x264_t *h )
         // There's nothing special about 1080 in that the warning still applies to it,
         // but chances are the user can't help it if his content is already 1080p,
         // so there's no point in warning in that case.
-        x264_log( h, X264_LOG_WARNING, 
+        x264_log( h, X264_LOG_WARNING,
                   "width or height not divisible by 16 (%dx%d), compression will suffer.\n",
                   h->param.i_width, h->param.i_height );
     }
@@ -455,7 +455,7 @@ static int x264_validate_parameters( x264_t *h )
         h->param.analyse.i_me_range = 4;
     if( h->param.analyse.i_me_range > 16 && h->param.analyse.i_me_method <= X264_ME_HEX )
         h->param.analyse.i_me_range = 16;
-    h->param.analyse.i_subpel_refine = x264_clip3( h->param.analyse.i_subpel_refine, 1, 7 );
+    h->param.analyse.i_subpel_refine = x264_clip3( h->param.analyse.i_subpel_refine, 0, 7 );
     h->param.analyse.b_bframe_rdo = h->param.analyse.b_bframe_rdo && h->param.analyse.i_subpel_refine >= 6;
     h->param.analyse.b_mixed_references = h->param.analyse.b_mixed_references && h->param.i_frame_reference > 1;
     h->param.analyse.inter &= X264_ANALYSE_PSUB16x16|X264_ANALYSE_PSUB8x8|X264_ANALYSE_BSUB16x16|
@@ -632,7 +632,7 @@ x264_t *x264_encoder_open   ( x264_param_t *param )
         x264_free( h );
         return NULL;
     }
-    
+
     h->mb.i_mb_count = h->sps->i_mb_width * h->sps->i_mb_height;
 
     /* Init frames. */
@@ -1484,7 +1484,7 @@ do_encode:
     /* restore CPU state (before using float again) */
     x264_cpu_restore( h->param.cpu );
 
-    if( h->sh.i_type == SLICE_TYPE_P && !h->param.rc.b_stat_read 
+    if( h->sh.i_type == SLICE_TYPE_P && !h->param.rc.b_stat_read
         && h->param.i_scenecut_threshold >= 0
         && !h->param.b_pre_scenecut )
     {
@@ -1545,7 +1545,7 @@ do_encode:
                 /* If using B-frames, force GOP to be closed.
                  * Even if this frame is going to be I and not IDR, forcing a
                  * P-frame before the scenecut will probably help compression.
-                 * 
+                 *
                  * We don't yet know exactly which frame is the scene cut, so
                  * we can't assign an I-frame. Instead, change the previous
                  * B-frame to P, and rearrange coding order. */
@@ -1712,7 +1712,7 @@ static void x264_encoder_frame_end( x264_t *h, x264_t *thread_current,
                   " SSIM Y:%.5f", ssim_y );
     }
     psz_message[79] = '\0';
-    
+
     x264_log( h, X264_LOG_DEBUG,
                   "frame=%4d QP=%i NAL=%d Slice:%c Poc:%-3d I:%-4d P:%-4d SKIP:%-4d size=%d bytes%s\n",
               h->i_frame,

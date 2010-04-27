@@ -616,12 +616,22 @@ static int  Parse( int argc, char **argv,
         }
     }
 
-    if( param->analyse.i_me_method == X264_ME_CAS
-        && ( param->analyse.p_cas_prog == NULL || param->analyse.p_cas_point == NULL ))
+    if( param->analyse.i_me_method == X264_ME_CAS )
     {
-        fprintf( stderr, "x264 [error]: When using CAS ME, program and point memory are needed.\n"
-                 "              Use --casprog and --caspoint to specify the filenames.\n");
-        return -1;
+        if( param->analyse.p_cas_prog == NULL || param->analyse.p_cas_point == NULL )
+        {
+            fprintf( stderr, "x264 [error]: When using CAS ME, program and point memory are needed.\n"
+	             "              Use --casprog and --caspoint to specify the filenames.\n");
+            return -1;
+        }
+        if( param->analyse.b_cas_hadamard )
+        {
+            param->analyse.i_subpel_refine = 2;
+        }
+        else
+        {
+            param->analyse.i_subpel_refine = 1;
+        }
     }
 
     /* Get the file name */

@@ -456,14 +456,45 @@ float AsmCondition::eval(EvalParam *param) const
 {
 	if( reg == T_WINID )
 	{
-		if( oper != T_EQ )	   
-			throw RunTimeException(RunTimeException::INVALID_WIN_COMPARE);
+		if( oper == T_EQ )	   
+		{
+			QString jumpLabel = param->label;
 
-		QString jumpLabel = param->label;
+			new CheckJumpCmd( Entity::doc, QString("%1").arg(num), jumpLabel ); ///<   chkjmp 0,  L12
 
-		new CheckJumpCmd( Entity::doc, QString("%1").arg(num), jumpLabel ); ///<   chkjmp 0,  L12
+			return AsmCondition::WINNING;
+		} 
 
-		return AsmCondition::WINNING;
+	    // if oper is one of > < >= <= !=
+
+		CmpCmd::REGISTER r;
+		CmpCmd::OPERATOR op;
+		float other = num;
+
+		r = CmpCmd::WINID;
+
+		// winid < 10  -not-> winid >= 10 -> winid > 9
+		if( oper == T_LT ) { op = CmpCmd::GREATER; --other; }
+
+		// winid >= 10 -not-> winid < 10
+		if( oper == T_GE ) { op = CmpCmd::LESS; }
+
+		// winid <= 10 -not-> winid > 10 
+		if( oper == T_LE ) { op = CmpCmd::GREATER; }
+
+		// winid > 10 -not-> winid <= 10 -> winid < 11
+		if( oper == T_GT ) { op = CmpCmd::LESS; ++other; }
+
+		// The not equal operator is emulated using the equal operator
+		if( oper == T_EQ || oper == T_NE )  op = CmpCmd::EQUAL;		
+
+		new CmpCmd(doc, r, op, other);
+
+		/// We return special instructions in order to handle the missing not equal operator
+		if( oper == T_EQ ) return AsmCondition::EQUAL_OPERATOR;
+		if( oper == T_NE ) return AsmCondition::NOT_EQUAL_OPERATOR;
+
+		return AsmCondition::REGISTER;
 	}
 	else if ( reg == T_LENGTH )
 	{
@@ -492,36 +523,37 @@ float AsmCondition::eval(EvalParam *param) const
 		// sad > 10 -not-> sad <= 10 -> sad < 11
 		if( oper == T_GT ) { op = CmpCmd::LESS; ++x; ++y; }
 
-		if( oper == T_EQ || oper == T_NE )  op = CmpCmd::EQUAL;
-		// disabled the not equal -- if( oper == T_NE )  op = CmpCmd::NOT_EQUAL;		 
+		// The not equal operator is emulated using the equal operator
+		if( oper == T_EQ || oper == T_NE )  op = CmpCmd::EQUAL;				 
 
 		xy = ( (x  & 0x7f) << 7 ) | (y & 0x7f);
 
 		new CmpCmd(doc, r, op, xy);
 
+		/// We return special instructions in order to handle the missing not equal operator
 		if( oper == T_EQ ) return AsmCondition::EQUAL_OPERATOR;
 		if( oper == T_NE ) return AsmCondition::NOT_EQUAL_OPERATOR;
 
 		return AsmCondition::REGISTER;
 	}
-	else
+	else if( reg == T_COST )
 	{
 		CmpCmd::REGISTER r;
 		CmpCmd::OPERATOR op;
 		float other = num;
 
-		if( reg == T_COST )   r = CmpCmd::COST;
+		r = CmpCmd::COST;
 
-		// sad < 10  -not-> sad >= 10 -> sad > 9
+		// cost < 10  -not-> cost >= 10 -> cost > 9
 		if( oper == T_LT ) { op = CmpCmd::GREATER; --other; }
 
-		// sad >= 10 -not-> sad < 10
+		// cost >= 10 -not-> cost < 10
 		if( oper == T_GE ) { op = CmpCmd::LESS; }
 
-		// sad <= 10 -not-> sad > 10 
+		// cost <= 10 -not-> cost > 10 
 		if( oper == T_LE ) { op = CmpCmd::GREATER; }
 
-		// sad > 10 -not-> sad <= 10 -> sad < 11
+		// cost > 10 -not-> cost <= 10 -> cost < 11
 		if( oper == T_GT ) { op = CmpCmd::LESS; ++other; }
 
 		if( oper == T_EQ || oper == T_NE )  op = CmpCmd::EQUAL;
@@ -529,11 +561,14 @@ float AsmCondition::eval(EvalParam *param) const
 
 		new CmpCmd(doc, r, op, other);
 
+		/// We return special instructions in order to handle the missing not equal operator
 		if( oper == T_EQ ) return AsmCondition::EQUAL_OPERATOR;
 		if( oper == T_NE ) return AsmCondition::NOT_EQUAL_OPERATOR;
 
 		return AsmCondition::REGISTER;
 	}
+
+	return AsmCondition::UNKNOWN_REGISTER;
 }
 
 //------------------------------------------------------------------

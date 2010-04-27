@@ -49,12 +49,11 @@ class Settings
   int min_height;
   int max_height;
 
-  // Registers
-  QString SAD;
+  // Registers  
   QString COST;
   QString LENGTH;
-  QString Mx;
-  QString My;
+  QString WINID;
+  
 
   // chk <start_pattern_address>,  <number_of_points>
   QString chk_opcode;

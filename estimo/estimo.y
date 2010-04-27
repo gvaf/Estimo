@@ -83,11 +83,7 @@ program :
                          if( ex.getType() == RunTimeException::BREAK_LOOP )
 	                      {
 	                         printf( "Error: 'Break' must be inside a loop!" );
-	                      } else 
-                         if( ex.getType() == RunTimeException::INVALID_WIN_COMPARE )
-	                      {
-	                         printf( "Error: You can only compare WINID for equality!" );
-	                      }
+	                      } 
                       };
                       
                       

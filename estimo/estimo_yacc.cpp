@@ -559,17 +559,17 @@ static const yysigned_char yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const unsigned short int yyrline[] =
 {
-       0,    72,    72,    96,   106,   112,   113,   116,   117,   120,
-     121,   127,   129,   130,   135,   136,   137,   138,   139,   140,
-     141,   142,   143,   146,   147,   150,   155,   156,   160,   163,
-     164,   165,   169,   170,   174,   175,   176,   177,   178,   179,
-     180,   181,   182,   183,   184,   185,   186,   188,   189,   190,
-     191,   192,   193,   194,   198,   199,   200,   201,   204,   205,
-     209,   210,   211,   212,   216,   217,   227,   228,   229,   230,
-     234,   235,   236,   237,   238,   239,   243,   247,   248,   252,
-     256,   257,   261,   262,   266,   267,   268,   269,   270,   271,
-     272,   273,   274,   275,   276,   277,   278,   279,   280,   281,
-     282,   283,   284,   285,   286,   287,   288,   289
+       0,    72,    72,    92,   102,   108,   109,   112,   113,   116,
+     117,   123,   125,   126,   131,   132,   133,   134,   135,   136,
+     137,   138,   139,   142,   143,   146,   151,   152,   156,   159,
+     160,   161,   165,   166,   170,   171,   172,   173,   174,   175,
+     176,   177,   178,   179,   180,   181,   182,   184,   185,   186,
+     187,   188,   189,   190,   194,   195,   196,   197,   200,   201,
+     205,   206,   207,   208,   212,   213,   223,   224,   225,   226,
+     230,   231,   232,   233,   234,   235,   239,   243,   244,   248,
+     252,   253,   257,   258,   262,   263,   264,   265,   266,   267,
+     268,   269,   270,   271,   272,   273,   274,   275,   276,   277,
+     278,   279,   280,   281,   282,   283,   284,   285
 };
 #endif
 
@@ -1643,11 +1643,7 @@ yyreduce:
                          if( ex.getType() == RunTimeException::BREAK_LOOP )
 	                      {
 	                         printf( "Error: 'Break' must be inside a loop!" );
-	                      } else 
-                         if( ex.getType() == RunTimeException::INVALID_WIN_COMPARE )
-	                      {
-	                         printf( "Error: You can only compare WINID for equality!" );
-	                      }
+	                      } 
                       };
                       
                       
@@ -1656,7 +1652,7 @@ yyreduce:
     break;
 
   case 3:
-#line 96 "estimo.y"
+#line 92 "estimo.y"
     {
                       (yyvsp[0].esobject)->eval(0);
                       Entity::doc.dumpMemory(outPath     + "/" + PATTERNS_OUTPUT);
@@ -1667,291 +1663,291 @@ yyreduce:
     break;
 
   case 4:
-#line 108 "estimo.y"
+#line 104 "estimo.y"
     {(yyval.esobject) = (yyvsp[-2].esobject);;}
     break;
 
   case 8:
-#line 117 "estimo.y"
+#line 113 "estimo.y"
     {;}
     break;
 
   case 9:
-#line 120 "estimo.y"
+#line 116 "estimo.y"
     {(yyval.esobject) = new AsmList((yyvsp[-1].esobject));;}
     break;
 
   case 10:
-#line 121 "estimo.y"
+#line 117 "estimo.y"
     {AsmList * list = static_cast<AsmList *>((yyvsp[-2].esobject));
                                        list->push_back((yyvsp[-1].esobject)); (yyval.esobject) = (yyvsp[-2].esobject);
                                       ;}
     break;
 
   case 11:
-#line 127 "estimo.y"
+#line 123 "estimo.y"
     { AsmCommand *cmd = static_cast<AsmCommand *>((yyvsp[0].esobject));
                            cmd->setLabel((yyvsp[-2].str)); (yyval.esobject) = cmd; ;}
     break;
 
   case 12:
-#line 129 "estimo.y"
+#line 125 "estimo.y"
     { (yyval.esobject) = (yyvsp[0].esobject); ;}
     break;
 
   case 13:
-#line 130 "estimo.y"
+#line 126 "estimo.y"
     {AsmCommand *cmd = static_cast<AsmCommand *>((yyvsp[0].esobject));
                                    cmd->setLabel((yyvsp[-3].str)); (yyval.esobject) = cmd; ;}
     break;
 
   case 14:
-#line 135 "estimo.y"
+#line 131 "estimo.y"
     { (yyval.esobject) = new AsmJmp(T_BRUNCH, (yyvsp[0].str));;}
     break;
 
   case 15:
-#line 136 "estimo.y"
+#line 132 "estimo.y"
     { (yyval.esobject) = new AsmHalt(); ;}
     break;
 
   case 16:
-#line 137 "estimo.y"
+#line 133 "estimo.y"
     { (yyval.esobject) = new AsmJmp(T_JMP, (yyvsp[0].str)); ;}
     break;
 
   case 17:
-#line 138 "estimo.y"
+#line 134 "estimo.y"
     { (yyval.esobject) = new AsmChk((yyvsp[0].str)); ;}
     break;
 
   case 18:
-#line 139 "estimo.y"
+#line 135 "estimo.y"
     { (yyval.esobject) =  0;;}
     break;
 
   case 19:
-#line 140 "estimo.y"
+#line 136 "estimo.y"
     { (yyval.esobject) = new AsmCmp(T_LT, (yyvsp[-2].n), (yyvsp[0].n));;}
     break;
 
   case 20:
-#line 141 "estimo.y"
+#line 137 "estimo.y"
     { (yyval.esobject) = new AsmCmp(T_GT, (yyvsp[-2].n), (yyvsp[0].n));;}
     break;
 
   case 21:
-#line 142 "estimo.y"
+#line 138 "estimo.y"
     { (yyval.esobject) = new AsmCmp(T_EQ, (yyvsp[-2].n), (yyvsp[0].n));;}
     break;
 
   case 22:
-#line 143 "estimo.y"
+#line 139 "estimo.y"
     { (yyval.esobject) = new AsmCmp(T_NE, (yyvsp[-2].n), (yyvsp[0].n));;}
     break;
 
   case 25:
-#line 150 "estimo.y"
+#line 146 "estimo.y"
     { new PatternClass((yyvsp[-2].str), (yyvsp[0].esobject)); ;}
     break;
 
   case 26:
-#line 155 "estimo.y"
+#line 151 "estimo.y"
     {(yyval.esobject) = new CheckListClass(0, (yyvsp[-1].esobject));;}
     break;
 
   case 27:
-#line 156 "estimo.y"
+#line 152 "estimo.y"
     {(yyval.esobject) = new CheckListClass((yyvsp[-2].esobject), (yyvsp[-1].esobject));;}
     break;
 
   case 28:
-#line 160 "estimo.y"
+#line 156 "estimo.y"
     {(yyval.esobject) = new ConstCheckClass((yyvsp[-2].n), (yyvsp[0].n)); ;}
     break;
 
   case 29:
-#line 163 "estimo.y"
+#line 159 "estimo.y"
     {(yyval.n) = (yyvsp[0].n);;}
     break;
 
   case 30:
-#line 164 "estimo.y"
+#line 160 "estimo.y"
     {(yyval.n) = (yyvsp[0].n);;}
     break;
 
   case 31:
-#line 165 "estimo.y"
+#line 161 "estimo.y"
     {(yyval.n) = - (yyvsp[0].n);;}
     break;
 
   case 32:
-#line 169 "estimo.y"
+#line 165 "estimo.y"
     { (yyval.esobject) = new SeqClass((yyvsp[-1].esobject), (yyvsp[0].esobject));;}
     break;
 
   case 33:
-#line 170 "estimo.y"
+#line 166 "estimo.y"
     {(yyval.esobject) = 0; ;}
     break;
 
   case 34:
-#line 174 "estimo.y"
+#line 170 "estimo.y"
     {(yyval.esobject) = new SeqClass(0, 0);;}
     break;
 
   case 35:
-#line 175 "estimo.y"
+#line 171 "estimo.y"
     {(yyval.esobject) = new UpdateClass();;}
     break;
 
   case 36:
-#line 176 "estimo.y"
+#line 172 "estimo.y"
     {(yyval.esobject) = (yyvsp[0].esobject);;}
     break;
 
   case 37:
-#line 177 "estimo.y"
+#line 173 "estimo.y"
     {(yyval.esobject) = (yyvsp[0].esobject);;}
     break;
 
   case 38:
-#line 178 "estimo.y"
+#line 174 "estimo.y"
     {(yyval.esobject) = new CheckJumpClass((yyvsp[-2].str));;}
     break;
 
   case 39:
-#line 179 "estimo.y"
+#line 175 "estimo.y"
     {(yyval.esobject) = new CheckJumpClass((yyvsp[-4].str), (yyvsp[-1].esobject));;}
     break;
 
   case 40:
-#line 180 "estimo.y"
+#line 176 "estimo.y"
     {(yyval.esobject) = (yyvsp[-1].esobject);;}
     break;
 
   case 41:
-#line 181 "estimo.y"
+#line 177 "estimo.y"
     {(yyval.esobject) = new AssignClass((yyvsp[-3].str), (yyvsp[-1].esobject));;}
     break;
 
   case 42:
-#line 182 "estimo.y"
+#line 178 "estimo.y"
     {(yyval.esobject) = new WhileClass((yyvsp[-2].esobject), (yyvsp[0].esobject));;}
     break;
 
   case 43:
-#line 183 "estimo.y"
+#line 179 "estimo.y"
     {(yyval.esobject) = new DoWhileClass((yyvsp[-2].esobject), (yyvsp[-5].esobject));;}
     break;
 
   case 44:
-#line 184 "estimo.y"
+#line 180 "estimo.y"
     {(yyval.esobject) = new IFClass((yyvsp[-2].esobject), (yyvsp[0].esobject));;}
     break;
 
   case 45:
-#line 185 "estimo.y"
+#line 181 "estimo.y"
     {(yyval.esobject) = new IFClass((yyvsp[-4].esobject), (yyvsp[-2].esobject), (yyvsp[0].esobject));;}
     break;
 
   case 46:
-#line 187 "estimo.y"
+#line 183 "estimo.y"
     {(yyval.esobject) = new ForClass((yyvsp[-8].str), (yyvsp[-6].esobject), (yyvsp[-4].esobject), (yyvsp[-2].esobject), (yyvsp[0].esobject));;}
     break;
 
   case 47:
-#line 188 "estimo.y"
+#line 184 "estimo.y"
     {(yyval.esobject) = (yyvsp[-1].esobject);;}
     break;
 
   case 48:
-#line 189 "estimo.y"
+#line 185 "estimo.y"
     {(yyval.esobject) = (yyvsp[0].esobject);;}
     break;
 
   case 49:
-#line 190 "estimo.y"
+#line 186 "estimo.y"
     {(yyval.esobject) = new BreakClass(); ;}
     break;
 
   case 50:
-#line 191 "estimo.y"
+#line 187 "estimo.y"
     {(yyval.esobject) = new BreakClass(true); ;}
     break;
 
   case 51:
-#line 192 "estimo.y"
+#line 188 "estimo.y"
     {(yyval.esobject) = new ExprClass(T_FUN_PRINT, (yyvsp[-2].esobject));;}
     break;
 
   case 52:
-#line 193 "estimo.y"
+#line 189 "estimo.y"
     {(yyval.esobject) = new PrintClass((yyvsp[-2].str)); ;}
     break;
 
   case 53:
-#line 194 "estimo.y"
+#line 190 "estimo.y"
     { (yyval.esobject) = new SetMVCmodeClass((yyvsp[-6].esobject), (yyvsp[-4].esobject), (yyvsp[-2].n)); ;}
     break;
 
   case 54:
-#line 198 "estimo.y"
+#line 194 "estimo.y"
     { (yyval.n) = E_MODE_16x16; ;}
     break;
 
   case 55:
-#line 199 "estimo.y"
+#line 195 "estimo.y"
     { (yyval.n) = E_MODE_8x16; ;}
     break;
 
   case 56:
-#line 200 "estimo.y"
+#line 196 "estimo.y"
     { (yyval.n) = E_MODE_16x8; ;}
     break;
 
   case 57:
-#line 201 "estimo.y"
+#line 197 "estimo.y"
     { (yyval.n) = E_MODE_8x8; ;}
     break;
 
   case 58:
-#line 204 "estimo.y"
+#line 200 "estimo.y"
     { (yyval.esobject) = new CasesListClass(0, (yyvsp[0].esobject), (yyvsp[-2].n)); ;}
     break;
 
   case 59:
-#line 205 "estimo.y"
+#line 201 "estimo.y"
     { (yyval.esobject) = new CasesListClass((yyvsp[-4].esobject), (yyvsp[0].esobject), (yyvsp[-2].n)); ;}
     break;
 
   case 60:
-#line 209 "estimo.y"
+#line 205 "estimo.y"
     {(yyval.esobject) = new IFSharp((yyvsp[-2].esobject), (yyvsp[0].esobject));;}
     break;
 
   case 61:
-#line 210 "estimo.y"
+#line 206 "estimo.y"
     {(yyval.esobject) = new IFSharp((yyvsp[-4].esobject), (yyvsp[-2].esobject), (yyvsp[0].esobject));;}
     break;
 
   case 62:
-#line 211 "estimo.y"
+#line 207 "estimo.y"
     {(yyval.esobject) = new WhileSharp((yyvsp[-2].esobject), (yyvsp[0].esobject));;}
     break;
 
   case 63:
-#line 212 "estimo.y"
+#line 208 "estimo.y"
     {(yyval.esobject) = new DoWhileSharp((yyvsp[-2].esobject), (yyvsp[-5].esobject));;}
     break;
 
   case 64:
-#line 216 "estimo.y"
+#line 212 "estimo.y"
     {(yyval.esobject) = new AsmCondition((yyvsp[-2].n), (yyvsp[-1].n), (yyvsp[0].n)); ;}
     break;
 
   case 65:
-#line 217 "estimo.y"
+#line 213 "estimo.y"
     {float inv = (yyvsp[-1].n); 
                                                 if((yyvsp[-1].n) == T_GT) inv = T_LT;
                                                 if((yyvsp[-1].n) == T_GE) inv = T_LE;
@@ -1962,212 +1958,212 @@ yyreduce:
     break;
 
   case 66:
-#line 227 "estimo.y"
+#line 223 "estimo.y"
     {(yyval.n) = T_COST; std::cout << "Warning: 'SAD' keyword is deprecated use 'COST' or 'LENGTH' instead." << std::endl; ;}
     break;
 
   case 67:
-#line 228 "estimo.y"
+#line 224 "estimo.y"
     {(yyval.n) = T_COST; ;}
     break;
 
   case 68:
-#line 229 "estimo.y"
+#line 225 "estimo.y"
     {(yyval.n) = T_LENGTH; ;}
     break;
 
   case 69:
-#line 230 "estimo.y"
+#line 226 "estimo.y"
     {(yyval.n) = T_WINID;;}
     break;
 
   case 70:
-#line 234 "estimo.y"
+#line 230 "estimo.y"
     {(yyval.n) = T_GT;;}
     break;
 
   case 71:
-#line 235 "estimo.y"
+#line 231 "estimo.y"
     {(yyval.n) = T_LT;;}
     break;
 
   case 72:
-#line 236 "estimo.y"
+#line 232 "estimo.y"
     {(yyval.n) = T_EQ;;}
     break;
 
   case 73:
-#line 237 "estimo.y"
+#line 233 "estimo.y"
     {(yyval.n) = T_GE;;}
     break;
 
   case 74:
-#line 238 "estimo.y"
+#line 234 "estimo.y"
     {(yyval.n) = T_LE;;}
     break;
 
   case 75:
-#line 239 "estimo.y"
+#line 235 "estimo.y"
     {(yyval.n) = T_NE;;}
     break;
 
   case 76:
-#line 243 "estimo.y"
+#line 239 "estimo.y"
     {(yyval.esobject) = new PatternClass((yyvsp[-4].str), (yyvsp[-1].esobject));;}
     break;
 
   case 77:
-#line 247 "estimo.y"
+#line 243 "estimo.y"
     { (yyval.esobject) = new CheckListClass(0, (yyvsp[0].esobject)); ;}
     break;
 
   case 78:
-#line 248 "estimo.y"
+#line 244 "estimo.y"
     { (yyval.esobject) = new CheckListClass((yyvsp[-1].esobject), (yyvsp[0].esobject)); ;}
     break;
 
   case 79:
-#line 252 "estimo.y"
+#line 248 "estimo.y"
     {(yyval.esobject) = new ConstCheckClass((yyvsp[-3].n), (yyvsp[-1].n));;}
     break;
 
   case 80:
-#line 256 "estimo.y"
+#line 252 "estimo.y"
     {(yyval.esobject) = new CheckJumpClass((yyvsp[-4].esobject), (yyvsp[-2].esobject));;}
     break;
 
   case 81:
-#line 257 "estimo.y"
+#line 253 "estimo.y"
     { (yyval.esobject) = new CheckJumpClass((yyvsp[-7].esobject), (yyvsp[-5].esobject), (yyvsp[-1].esobject)); ;}
     break;
 
   case 82:
-#line 261 "estimo.y"
+#line 257 "estimo.y"
     {(yyval.esobject) = (yyvsp[0].esobject);;}
     break;
 
   case 83:
-#line 262 "estimo.y"
+#line 258 "estimo.y"
     {(yyval.esobject) = new SeqClass((yyvsp[-1].esobject), (yyvsp[0].esobject));;}
     break;
 
   case 84:
-#line 266 "estimo.y"
+#line 262 "estimo.y"
     {(yyval.esobject) = new NumClass((yyvsp[0].n));;}
     break;
 
   case 85:
-#line 267 "estimo.y"
+#line 263 "estimo.y"
     {(yyval.esobject) = new VarClass((yyvsp[0].str));;}
     break;
 
   case 86:
-#line 268 "estimo.y"
+#line 264 "estimo.y"
     {(yyval.esobject) = new ExprClass('-', ZERO, (yyvsp[0].esobject));;}
     break;
 
   case 87:
-#line 269 "estimo.y"
+#line 265 "estimo.y"
     {(yyval.esobject) = new ExprClass('+', ZERO, (yyvsp[0].esobject));;}
     break;
 
   case 88:
-#line 270 "estimo.y"
+#line 266 "estimo.y"
     {(yyval.esobject) = new ExprClass(T_NOT, (yyvsp[0].esobject));;}
     break;
 
   case 89:
-#line 271 "estimo.y"
+#line 267 "estimo.y"
     {(yyval.esobject) = new ExprClass('+', (yyvsp[-2].esobject), (yyvsp[0].esobject)); ;}
     break;
 
   case 90:
-#line 272 "estimo.y"
+#line 268 "estimo.y"
     {(yyval.esobject) = new ExprClass('-', (yyvsp[-2].esobject), (yyvsp[0].esobject)); ;}
     break;
 
   case 91:
-#line 273 "estimo.y"
+#line 269 "estimo.y"
     {(yyval.esobject) = new ExprClass('%', (yyvsp[-2].esobject), (yyvsp[0].esobject)); ;}
     break;
 
   case 92:
-#line 274 "estimo.y"
+#line 270 "estimo.y"
     {(yyval.esobject) = new ExprClass('*', (yyvsp[-2].esobject), (yyvsp[0].esobject));;}
     break;
 
   case 93:
-#line 275 "estimo.y"
+#line 271 "estimo.y"
     {(yyval.esobject) = new ExprClass('/', (yyvsp[-2].esobject), (yyvsp[0].esobject));;}
     break;
 
   case 94:
-#line 276 "estimo.y"
+#line 272 "estimo.y"
     {(yyval.esobject) = new ExprClass(T_LT, (yyvsp[-2].esobject), (yyvsp[0].esobject));;}
     break;
 
   case 95:
-#line 277 "estimo.y"
+#line 273 "estimo.y"
     {(yyval.esobject) = new ExprClass(T_GT, (yyvsp[-2].esobject), (yyvsp[0].esobject));;}
     break;
 
   case 96:
-#line 278 "estimo.y"
+#line 274 "estimo.y"
     {(yyval.esobject) = new ExprClass(T_GE, (yyvsp[-2].esobject), (yyvsp[0].esobject));;}
     break;
 
   case 97:
-#line 279 "estimo.y"
+#line 275 "estimo.y"
     {(yyval.esobject) = new ExprClass(T_LE, (yyvsp[-2].esobject), (yyvsp[0].esobject));;}
     break;
 
   case 98:
-#line 280 "estimo.y"
+#line 276 "estimo.y"
     {(yyval.esobject) = new ExprClass(T_NE, (yyvsp[-2].esobject), (yyvsp[0].esobject));;}
     break;
 
   case 99:
-#line 281 "estimo.y"
+#line 277 "estimo.y"
     {(yyval.esobject) = new ExprClass(T_EQ, (yyvsp[-2].esobject), (yyvsp[0].esobject));;}
     break;
 
   case 100:
-#line 282 "estimo.y"
+#line 278 "estimo.y"
     {(yyval.esobject) = new ExprClass(T_AND, (yyvsp[-2].esobject), (yyvsp[0].esobject));;}
     break;
 
   case 101:
-#line 283 "estimo.y"
+#line 279 "estimo.y"
     {(yyval.esobject) = new ExprClass(T_OR, (yyvsp[-2].esobject), (yyvsp[0].esobject));;}
     break;
 
   case 102:
-#line 284 "estimo.y"
+#line 280 "estimo.y"
     {(yyval.esobject) = (yyvsp[-1].esobject);;}
     break;
 
   case 103:
-#line 285 "estimo.y"
+#line 281 "estimo.y"
     {(yyval.esobject) = new ExprClass(T_FUN_SQRT,  (yyvsp[-1].esobject));;}
     break;
 
   case 104:
-#line 286 "estimo.y"
+#line 282 "estimo.y"
     {(yyval.esobject) = new ExprClass(T_FUN_LOG2,  (yyvsp[-1].esobject));;}
     break;
 
   case 105:
-#line 287 "estimo.y"
+#line 283 "estimo.y"
     {(yyval.esobject) = new ExprClass(T_FUN_LN,    (yyvsp[-1].esobject));;}
     break;
 
   case 106:
-#line 288 "estimo.y"
+#line 284 "estimo.y"
     {(yyval.esobject) = new ExprClass(T_FUN_LOG10, (yyvsp[-1].esobject));;}
     break;
 
   case 107:
-#line 289 "estimo.y"
+#line 285 "estimo.y"
     {(yyval.esobject) = new ExprClass(T_FUN_POW,   (yyvsp[-3].esobject), (yyvsp[-1].esobject));;}
     break;
 
@@ -2176,7 +2172,7 @@ yyreduce:
     }
 
 /* Line 1126 of yacc.c.  */
-#line 2180 "estimo.tab.c"
+#line 2176 "estimo.tab.c"
 
   yyvsp -= yylen;
   yyssp -= yylen;
@@ -2444,7 +2440,7 @@ yyreturn:
 }
 
 
-#line 292 "estimo.y"
+#line 288 "estimo.y"
 
 
 /// Parse input file generate syntax tree

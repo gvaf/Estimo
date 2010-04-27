@@ -33,7 +33,7 @@ cas_t *cas = NULL;
  * where me_* are the number of EPZS iterations run on all candidate block types,
  * and refine_* are run only on the winner. */
 static const int subpel_iterations[][4] =
-   {{1,0,0,0},
+   {{0,0,0,0},
     {1,1,0,0},
     {0,1,1,0},
     {0,2,1,0},
@@ -621,13 +621,13 @@ static void x264_me_search_ref_cas( x264_t *h, x264_me_t *m, int (*mvc)[2], int 
 
 void x264_me_refine_qpel( x264_t *h, x264_me_t *m )
 {
-	int hpel, qpel;
+    int hpel, qpel;
 
     if ( h->mb.i_me_method == X264_ME_CAS )
 	return;
 
-	hpel = subpel_iterations[h->mb.i_subpel_refine][0];
-	qpel = subpel_iterations[h->mb.i_subpel_refine][1];
+    hpel = subpel_iterations[h->mb.i_subpel_refine][0];
+    qpel = subpel_iterations[h->mb.i_subpel_refine][1];
 
     if( m->i_pixel <= PIXEL_8x8 && h->sh.i_type == SLICE_TYPE_P )
         m->cost -= m->i_ref_cost;

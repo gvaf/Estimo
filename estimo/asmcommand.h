@@ -169,7 +169,7 @@ class JumpCmd : public AsmCmd
 class CmpCmd : public AsmCmd
 {
  public:
-  enum REGISTER {SAD, COST, LENGTH, MX, MY};
+  enum REGISTER {COST, LENGTH, WINID};
   enum OPERATOR {GREATER, LESS, EQUAL, NOT_EQUAL};
 
   /// Constructor

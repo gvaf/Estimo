@@ -39,12 +39,6 @@ using namespace std;
 #include "semanticerror.h"
 #include "settings.h"
 
-/// DEBUG Trick!
-#define SLASH(s) /##s
-#define COMMENT SLASH(/)
-#define cout COMMENT
-#define mycout cout
-
 QVector<AsmCmd *> optimize(AssemblyDoc & doc, const QVector<AsmCmd *> & program);
 
 // FIXME: to be removed
@@ -282,8 +276,6 @@ void AssemblyDoc::setLabel(QString lbl)
    matchlabels[curLabel] = lbl;
   }
 
-  cout << "####:" << curLabel.toStdString() << "  set new : " << lbl.toStdString() << "-> " << matchlabels[lbl].toStdString() << endl;
-
   curLabel = lbl; 
   labels[lbl] = program.size();
 }
@@ -427,16 +419,12 @@ QVector<AsmCmd *> assembly_optimization(AssemblyDoc & doc, const QVector<AsmCmd 
  QVector<AsmCmd *> optim;
 
  for(int i = 0; i < opt.size(); ++i)
- {
-	 cout << i << " LABELS: " << opt[i]->getHashLabel().toStdString()  <<"\t" << AsmCmd::describeType(opt[i]->getType()).toStdString();;
-	 
+ {	 
 	 if( opt[i]->isUncond() )
 	 {
 		 JumpCmd * jump = static_cast<JumpCmd *>(opt[i]);
 		 QString initLabel = jump->getTarget();
-    	 cout << "  " << "Hashkey = " << initLabel.toStdString() << "  " << "RealLabel = " <<  AsmCmd::getRealLabel(initLabel).toStdString() ;
-		 cout << " Value = " <<  doc.getLabelAddress(initLabel);
-
+    
 		 /// If previous and current are jump instructions
 		 if( !optim.isEmpty() && optim.last()->isUncond() )
 		   {				   
@@ -448,15 +436,11 @@ QVector<AsmCmd *> assembly_optimization(AssemblyDoc & doc, const QVector<AsmCmd 
 			 if( prevlocation == i + 1 )
 				 optim.pop_back();
 			
-			 cout << endl << " prevlocation = " << prevlocation << ",  i " << i << endl;
-             cout << endl << "Found double jumps!" << endl;
 		     continue; 		 
 		   }		 
 		 else
 		 {
 	        int location = doc.getLabelAddress(initLabel);
-	
-			 cout << endl << " @@@@location = " << location << ",  i " << i << endl;
            
 			 /// If jumps to the following instruction ignore it
 			 if( location == i + 1 )
@@ -464,57 +448,13 @@ QVector<AsmCmd *> assembly_optimization(AssemblyDoc & doc, const QVector<AsmCmd 
 		 } 
 	 }
 	 
-	 /*
-	 if( opt[i]->isCheckJump() )
-	 {
-      CheckJumpCmd * jump = static_cast<CheckJumpCmd *>(opt[i]);
-	  QString initLabel = jump->getTarget();
-      int location = doc.getLabelAddress(initLabel);	 
-
-	  cout << "\n########CHECKJMP : " << location << "  " << i << endl;
-	  if( location == i + 1 )
-		  continue;
-
-	 }
-*/
-	 cout << endl;
-	 
      if( opt[i]->getHashLabel() != "" )	   
 	   {
          QHash<QString, int> & labelTable = doc.getLabelHashTable(); 
 	     labelTable[opt[i]->getHashLabel()] = optim.size();
-		 cout << "CHANGE: labelTable[" << opt[i]->getHashLabel().toStdString() << "] = " << optim.size() << endl;
 	   }
 
 	 optim.push_back( opt[i] );	
- }
-
-
- /*
- for(int i = 0; i < optim.size(); ++i)
- {
-	 cout << i << "\t" << optim[i]->evalString().toStdString() << endl;
- }
- 
-  cout << "**************************************************" << endl;
-
- */
-  
- cout << "---------------------" << endl;
-
-
- {
-QHash<QString, int> & labelTable = doc.getLabelHashTable();
- QHashIterator<QString, int> iter(labelTable);
- 
- while (iter.hasNext()) 
- {
-             iter.next();
-			 QString thekey = AsmCmd::getRealLabel(iter.key());
-			 cout  << thekey.toStdString() << ": (" << iter.key().toStdString() <<  ") = " << doc.getLabelAddress(iter.key()) << endl;
-         } 
-
- cout << "---------------------" << endl;
  }
 
  return optim;

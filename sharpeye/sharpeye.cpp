@@ -21,7 +21,7 @@
  **************************************************************************
  */
 
-#define SHARP_VERSION "v2009.4"
+#define SHARP_VERSION "v2010"
 
 #include <QtGui>
 #include "sharpeye.h"
