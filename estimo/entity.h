@@ -135,6 +135,8 @@ class Entity
   /// Stop execution if necessary
   bool notStopped() const;
  
+  virtual QString className() { return "Entity"; };
+
  public:
  
 

@@ -446,11 +446,18 @@ class AsmCondition : public Entity
   /// Return the operation
   float getOperation();
 
+  /// Return the class Name
+  virtual QString className() { return "AsmCondition"; };
+
+  /// Returns true if the condition is the operand "not_equal"
+  bool isNotEqual();
+
   enum
   {
    UNKNOWN_REGISTER,
    REGISTER,
-   WINNING,
+   WINNING_EQUAL,
+   WINNING_NOT_EQUAL,
    EQUAL_OPERATOR,
    NOT_EQUAL_OPERATOR
   };

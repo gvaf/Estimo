@@ -451,21 +451,36 @@ AsmCondition::AsmCondition(float _reg, float _oper, float _num)
 
 //------------------------------------------------------------------
 
+/// Returns true if the condition is the operand "not_equal"
+bool AsmCondition::isNotEqual()
+{ return oper == T_NE; }
+
+//------------------------------------------------------------------
+
 /// compare evaluation #if, #while, #do-while
 float AsmCondition::eval(EvalParam *param) const 
 {
 	if( reg == T_WINID )
 	{
+		/// We return special instructions in order to handle the missing not equal operator
 		if( oper == T_EQ )	   
 		{
 			QString jumpLabel = param->label;
 
 			new CheckJumpCmd( Entity::doc, QString("%1").arg(num), jumpLabel ); ///<   chkjmp 0,  L12
 
-			return AsmCondition::WINNING;
+			return AsmCondition::WINNING_EQUAL;
 		} 
+		else if( oper == T_NE)
+		{
+			QString jumpLabel = param->label;
 
-	    // if oper is one of > < >= <= !=
+			new CheckJumpCmd( Entity::doc, QString("%1").arg(num), jumpLabel ); ///<   chkjmp 0,  L12
+
+			return AsmCondition::WINNING_NOT_EQUAL; 
+		}
+
+	    // if oper is one of > < >= <=
 
 		CmpCmd::REGISTER r;
 		CmpCmd::OPERATOR op;
@@ -484,15 +499,8 @@ float AsmCondition::eval(EvalParam *param) const
 
 		// winid > 10 -not-> winid <= 10 -> winid < 11
 		if( oper == T_GT ) { op = CmpCmd::LESS; ++other; }
-
-		// The not equal operator is emulated using the equal operator
-		if( oper == T_EQ || oper == T_NE )  op = CmpCmd::EQUAL;		
-
+	
 		new CmpCmd(doc, r, op, other);
-
-		/// We return special instructions in order to handle the missing not equal operator
-		if( oper == T_EQ ) return AsmCondition::EQUAL_OPERATOR;
-		if( oper == T_NE ) return AsmCondition::NOT_EQUAL_OPERATOR;
 
 		return AsmCondition::REGISTER;
 	}
@@ -585,7 +593,7 @@ float IFSharp::eval(EvalParam *param) const
    /// Compare Command / ChkJump Command
    float type = cond->eval(param);   ///< cmp sad, num
 
-   if( type == AsmCondition::WINNING )
+   if( type == AsmCondition::WINNING_EQUAL )
    {
    /// if(cond) <code1> else <code2>
 	if( elsebody != 0 )
@@ -609,8 +617,30 @@ float IFSharp::eval(EvalParam *param) const
   	    Entity::force_update(param);   ///<   call update
 		
 	    Entity::doc.setLabel(L2);      ///< L2:
-	
 	}
+   }
+   else if( type == AsmCondition::WINNING_NOT_EQUAL)
+   {
+	   /// if(cond) <code1> else <code2>
+	   if( elsebody != 0 )
+	   {        		   
+		   ifbody->eval(param);           ///<   <winning code>
+		   Entity::force_update(param);    ///<   call update
+		   new JumpCmd(doc, L2);           ///< b L2 	    
+		   Entity::doc.setLabel(L1);       ///< L1:	 
+		   elsebody->eval(param);          ///<   <code2>
+		   Entity::force_update(param);   ///<   call update
+		   Entity::doc.setLabel(L2);      ///< L2:
+	   }
+	   else  /// if(cond) <code1>
+	   {
+		   ifbody->eval(param);           ///<   <winning code>
+
+		   Entity::force_update(param);   ///<   call update
+
+		   Entity::doc.setLabel(L1);       ///< L1:	
+	   }
+
    }
    else if( type == AsmCondition::REGISTER || type == AsmCondition::NOT_EQUAL_OPERATOR )
    {	   
@@ -678,12 +708,36 @@ float WhileSharp::eval(EvalParam *param) const
 
    param = EvalParam::getParam(param);
    param->insideLoop(L2);
+   param->label = L2;
 
    Entity::doc.setLabel(L1);      ///< L1: 
    
    float type = cond->eval(param);                  ///< Compare Command
 
-   if( type == AsmCondition::REGISTER || type == AsmCondition::NOT_EQUAL_OPERATOR )
+   if( type == AsmCondition::WINNING_EQUAL )
+   {
+	   QString L3 = doc.newLabel();
+	      	   
+	   new JumpCmd(doc, L3, true);    ///<  b L3	
+
+	   Entity::doc.setLabel(L2);      ///< L2: 
+
+	   body->eval(param);                  ///< <code1>
+	   Entity::force_update(param);        ///< call update
+
+	   new JumpCmd(doc, L1, true);   ///<  b L1	
+	   Entity::doc.setLabel(L3);      ///< L3: 
+   }
+   else  if( type == AsmCondition::WINNING_NOT_EQUAL)
+   {
+	   body->eval(param);                  ///< <code1>
+	   Entity::force_update(param);        ///< call update
+
+	   new JumpCmd(doc, L1, true);   ///<  b L1	
+
+	   Entity::doc.setLabel(L2);      ///< L2: 
+   }
+   else if( type == AsmCondition::REGISTER || type == AsmCondition::NOT_EQUAL_OPERATOR )
    {
 	   new JumpCmd(Entity::doc, L2, false);   ///< jmp L2	
 	   body->eval(param);                  ///< <code1>
@@ -722,14 +776,31 @@ float DoWhileSharp::eval(EvalParam *param) const
    param = EvalParam::getParam(param);
    param->insideLoop(L2);
 
-   Entity::doc.setLabel(L1);      ///< L1: 
-
+   Entity::doc.setLabel(L1);        ///< L1: 
    body->eval(param);                  ///< <code1>
    Entity::force_update(param);        ///< call update
 
+   if( cond->className() == "AsmCondition")
+   {
+     AsmCondition * c = dynamic_cast<AsmCondition *>(cond);
+	 if( c->isNotEqual() )
+        param->label = L2;
+	 else
+        param->label = L1;
+   }
+   
    float type = cond->eval(param);     ///< Compare Command
 
-   if( type == AsmCondition::REGISTER || type == AsmCondition::NOT_EQUAL_OPERATOR )
+   if( type == AsmCondition::WINNING_EQUAL )
+   {	   
+	   Entity::doc.setLabel(L2);	   
+   }
+   else  if( type == AsmCondition::WINNING_NOT_EQUAL)
+   {
+   	 new JumpCmd(doc, L1, true);   ///<  b L1	
+     Entity::doc.setLabel(L2);
+
+   } else if( type == AsmCondition::REGISTER || type == AsmCondition::NOT_EQUAL_OPERATOR )
    {
 	  new JumpCmd(doc, L2, false);  ///< jmp L2	
 	  new JumpCmd(doc, L1, true);   ///<  b L1	
